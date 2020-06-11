@@ -1,0 +1,35 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.zip
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.txt
+c.out
+
+# Static generation
+static/*.go
+
+# Idea
+.idea/
+
+vendor/
+
+# Generated executable
+playground-protoactor
+
+# ouput directories
+build/
+dist/
+bin/
