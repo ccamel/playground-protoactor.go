@@ -1,0 +1,22 @@
+run:
+  concurrency: 12
+  deadline: 120s
+  issues-exit-code: 1
+  tests: false
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  funlen:
+    lines: 76
+
+linters:
+  enable-all: true
+  disable:
+    - lll
+    - gomnd
+  fast: false
+
