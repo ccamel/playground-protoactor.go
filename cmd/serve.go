@@ -11,10 +11,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package main
+//nolint:gochecknoglobals,gochecknoinits // common pattern when using cobra library
+package cmd
 
-import "github.com/ccamel/playground-protoactor.go/cmd"
+import (
+	"github.com/ccamel/playground-protoactor.go/internal/system"
+	"github.com/spf13/cobra"
+)
 
-func main() {
-	cmd.Execute()
+// serveCmd represents the serve command.
+var serveCmd = &cobra.Command{
+	Use:   "serve",
+	Short: "Start the protoactor platform",
+	Long: `Start the protoactor platform`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		sys, err := system.Boot()
+		if err != nil {
+			return err
+		}
+
+		sys.Wait()
+
+		return nil
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(serveCmd)
 }
