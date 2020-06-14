@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package persistence;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+message Snapshot {
+    message Metadata {
+        string id = 1;
+        string type = 2;
+        google.protobuf.Timestamp timestamp = 3;
+        uint64 index = 4;
+    }
+    Metadata metadata = 1;
+    google.protobuf.Any payload = 2;
+}
+
+message Event {
+    message Metadata {
+        string id = 1;
+        string type = 2;
+        google.protobuf.Timestamp timestamp = 3;
+        uint64 index = 4;
+    }
+    Metadata metadata = 1;
+    google.protobuf.Any payload = 2;
+}
