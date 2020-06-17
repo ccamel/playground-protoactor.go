@@ -1,0 +1,86 @@
+// Copyright © 2020 Chris Camel <camel.christophe@gmail.com>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package booklend
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/AsynkronIT/protoactor-go/persistence"
+	persistence2 "github.com/ccamel/playground-protoactor.go/internal/persistence"
+	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/genproto/googleapis/rpc/code"
+)
+
+type BookEventHandler struct {
+	persistence.Mixin
+	state *BookEntity
+}
+
+func (a *BookEventHandler) Receive(context actor.Context) {
+	a.handleMessage(context, context.Message())
+}
+
+func (a *BookEventHandler) handleMessage(context actor.Context, message interface{}) {
+	switch msg := message.(type) {
+	case *actor.Started:
+		a.state = &BookEntity{}
+
+		context.SetReceiveTimeout(10 * time.Second)
+	case *actor.ReceiveTimeout:
+		context.Stop(context.Self())
+	case *persistence.RequestSnapshot:
+		a.PersistSnapshot(a.state)
+	case *persistence2.ConsiderSnapshot:
+		var dynamic ptypes.DynamicAny
+
+		err := ptypes.UnmarshalAny(msg.Payload, &dynamic)
+		if err != nil {
+			panic(err)
+		}
+
+		a.state = dynamic.Message.(*BookEntity)
+	case *BookRegistered:
+		if !a.Recovering() {
+			if a.state.Id != "" {
+				context.Respond(&CommandStatus{
+					Code:    code.Code_ALREADY_EXISTS,
+					Message: fmt.Sprintf("book with id %s already exists.", msg.Id),
+				})
+
+				break
+			}
+		}
+
+		a.state.Id = msg.Id
+		a.state.Isbn = msg.Isbn
+		a.state.Title = msg.Title
+
+		if !a.Recovering() {
+			context.Respond(&CommandStatus{
+				Code:    code.Code_OK,
+				Message: fmt.Sprintf("book registered with id %s", msg.Id),
+			})
+			a.PersistReceive(msg)
+		}
+	}
+}
+
+func newBookAggregate() *actor.Props {
+	return actor.
+		PropsFromProducer(func() actor.Actor {
+			return &BookEventHandler{}
+		})
+}

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package booklend;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+message BookRegistered {
+    string id = 1;
+    string title = 2;
+    string isbn = 3;
+}
+
+message BookLent {
+    string id = 1;
+    string borrower = 2;
+    google.protobuf.Timestamp date = 3;
+    google.protobuf.Duration expectedDuration = 4;
+}
+
+message BookReturned {
+    string id = 1;
+    string by = 2;
+    google.protobuf.Timestamp date = 3;
+    google.protobuf.Duration lentDuration = 4;
+}
