@@ -26,7 +26,7 @@ require (
 	github.com/urfave/cli v1.22.4 // indirect
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/sys v0.0.0-20200610111108-226ff32320da // indirect
-	google.golang.org/genproto v0.0.0-20200615140333-fd031eab31e7
+	google.golang.org/genproto b414f8b61790
 	google.golang.org/protobuf v1.24.0
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/vrecan/death.v3 v3.0.1
