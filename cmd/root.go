@@ -32,7 +32,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "playground-protoactor.go",
 	Short: "Playground for playing with protoactor (the next gen Actor Model framework)",
-	Long: `Playground for playing with protoactor (the next gen Actor Model framework) in go, following DDD, Event Sourcing & CQRS paradigms.`,
+	Long:  `Playground for playing with protoactor (the next gen Actor Model framework) in go, following DDD, Event Sourcing & CQRS paradigms.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr}).Level(zerolog.DebugLevel)
 	},

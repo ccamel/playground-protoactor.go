@@ -23,7 +23,7 @@ import (
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Start the protoactor platform",
-	Long: `Start the protoactor platform`,
+	Long:  `Start the protoactor platform`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		sys, err := system.Boot()
 		if err != nil {
