@@ -25,17 +25,17 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/code"
 )
 
-type BookEventHandler struct {
+type BookAggregate struct {
 	persistence.Mixin
 	state *BookEntity
 }
 
-func (a *BookEventHandler) Receive(context actor.Context) {
+func (a *BookAggregate) Receive(context actor.Context) {
 	a.handleMessage(context, context.Message())
 }
 
 //nolint:funlen // relax
-func (a *BookEventHandler) handleMessage(context actor.Context, message interface{}) {
+func (a *BookAggregate) handleMessage(context actor.Context, message interface{}) {
 	switch msg := message.(type) {
 	case *actor.Started:
 		a.state = &BookEntity{}
@@ -165,7 +165,7 @@ func (a *BookEventHandler) handleMessage(context actor.Context, message interfac
 	}
 }
 
-func (a *BookEventHandler) toEvents(command interface{}) []model.Event {
+func (a *BookAggregate) toEvents(command interface{}) []model.Event {
 	switch cmd := command.(type) {
 	case *RegisterBook:
 		return []model.Event{
@@ -201,7 +201,7 @@ func (a *BookEventHandler) toEvents(command interface{}) []model.Event {
 	return nil
 }
 
-func (a *BookEventHandler) applyEvents(context actor.Context, events []model.Event) {
+func (a *BookAggregate) applyEvents(context actor.Context, events []model.Event) {
 	for _, event := range events {
 		a.handleMessage(context, event)
 	}
@@ -210,6 +210,6 @@ func (a *BookEventHandler) applyEvents(context actor.Context, events []model.Eve
 func newBookAggregate() *actor.Props {
 	return actor.
 		PropsFromProducer(func() actor.Actor {
-			return &BookEventHandler{}
+			return &BookAggregate{}
 		})
 }
