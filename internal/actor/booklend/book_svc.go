@@ -15,7 +15,6 @@ package booklend
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
@@ -35,7 +34,7 @@ func (a *BookService) Receive(context actor.Context) {
 			Title: msg.Title,
 			Isbn:  msg.Isbn,
 		}
-		context.Respond(a.apply(context, event))
+		a.apply(context, event)
 	case *LendBook:
 
 	case *ReturnBook:
@@ -51,24 +50,16 @@ func (a *BookService) Receive(context actor.Context) {
 }
 
 // apply applies the given event to the aggregate.
-func (a *BookService) apply(context actor.Context, event model.Event) interface{} {
+func (a *BookService) apply(context actor.Context, event model.Event) {
 	book, err := getOrSpawn(context, event.GetId())
 	if err != nil {
-		return &CommandStatus{
+		context.Respond(&CommandStatus{
 			Code:    code.Code_UNKNOWN,
 			Message: err.Error(),
-		}
+		})
 	}
 
-	resp, err := context.RequestFuture(book, event, 2*time.Second).Result()
-	if err != nil {
-		return &CommandStatus{
-			Code:    code.Code_UNKNOWN,
-			Message: err.Error(),
-		}
-	}
-
-	return resp
+	context.RequestWithCustomSender(book, event, context.Sender())
 }
 
 func getOrSpawn(context actor.Context, name string) (*actor.PID, error) {
