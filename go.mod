@@ -21,7 +21,7 @@ require (
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/sys v0.0.0-20200615200032-f1bc736245b1 // indirect
 	golang.org/x/text v0.3.3 // indirect
-	google.golang.org/genproto v0.0.0-20200618031413-b414f8b61790
+	google.golang.org/genproto 3e7fca5c55db
 	google.golang.org/protobuf v1.24.0
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/vrecan/death.v3 v3.0.1
