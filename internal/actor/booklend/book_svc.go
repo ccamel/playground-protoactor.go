@@ -18,7 +18,6 @@ import (
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
-	"github.com/ccamel/playground-protoactor.go/internal/model"
 	"google.golang.org/genproto/googleapis/rpc/code"
 )
 
@@ -29,16 +28,11 @@ type BookService struct {
 func (a *BookService) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *RegisterBook:
-		event := &BookRegistered{
-			Id:    msg.BookId,
-			Title: msg.Title,
-			Isbn:  msg.Isbn,
-		}
-		a.apply(context, event)
+		a.apply(context, msg.BookId)
 	case *LendBook:
-
+		a.apply(context, msg.BookId)
 	case *ReturnBook:
-
+		a.apply(context, msg.BookId)
 	default:
 		if context.Sender() != nil {
 			context.Respond(&CommandStatus{
@@ -50,8 +44,8 @@ func (a *BookService) Receive(context actor.Context) {
 }
 
 // apply applies the given event to the aggregate.
-func (a *BookService) apply(context actor.Context, event model.Event) {
-	book, err := getOrSpawn(context, event.GetId())
+func (a *BookService) apply(context actor.Context, id string) {
+	book, err := getOrSpawn(context, id)
 	if err != nil {
 		context.Respond(&CommandStatus{
 			Code:    code.Code_UNKNOWN,
@@ -59,7 +53,7 @@ func (a *BookService) apply(context actor.Context, event model.Event) {
 		})
 	}
 
-	context.RequestWithCustomSender(book, event, context.Sender())
+	context.Forward(book)
 }
 
 func getOrSpawn(context actor.Context, name string) (*actor.PID, error) {
