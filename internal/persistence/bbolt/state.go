@@ -20,9 +20,8 @@ import (
 	p "github.com/AsynkronIT/protoactor-go/persistence"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence"
 	"github.com/ccamel/playground-protoactor.go/internal/util"
-	"github.com/golang/protobuf/descriptor" //nolint:staticcheck // use same version than protoactor library
-	"github.com/golang/protobuf/proto"      //nolint:staticcheck // use same version than protoactor library
-	"github.com/golang/protobuf/ptypes"     //nolint:staticcheck // use same version than protoactor library
+	"github.com/golang/protobuf/proto"  //nolint:staticcheck // use same version than protoactor library
+	"github.com/golang/protobuf/ptypes" //nolint:staticcheck // use same version than protoactor library
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
 )
@@ -96,7 +95,7 @@ func (provider *ProviderState) GetSnapshot(actorName string) (interface{}, int, 
 		message = &persistence.ConsiderSnapshot{
 			Payload: entity.Payload,
 		}
-		eventIndex = int(entity.Metadata.Index)
+		eventIndex = int(entity.Metadata.Version)
 
 		return nil
 	})
@@ -111,14 +110,11 @@ func (provider *ProviderState) PersistSnapshot(actorName string, eventIndex int,
 			return err
 		}
 
-		_, desc := descriptor.MessageDescriptorProto(snapshot)
-
 		entity := &persistence.Snapshot{
+			Id: actorName,
 			Metadata: &persistence.Snapshot_Metadata{
-				Id:        actorName,
-				Type:      *desc.Name,
-				Timestamp: ptypes.TimestampNow(),
-				Index:     uint64(eventIndex),
+				StorageTimestamp: ptypes.TimestampNow(),
+				Version:          uint64(eventIndex),
 			},
 			Payload: payload,
 		}
@@ -190,14 +186,12 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 		}
 
 		id, _ := actorBucket.NextSequence()
-		_, desc := descriptor.MessageDescriptorProto(event)
 
 		entity := &persistence.Event{
+			Id: strconv.FormatUint(id, 10),
 			Metadata: &persistence.Event_Metadata{
-				Id:        strconv.FormatUint(id, 10),
-				Type:      *desc.Name,
-				Timestamp: ptypes.TimestampNow(),
-				Index:     uint64(eventIndex),
+				StorageTimestamp: ptypes.TimestampNow(),
+				Version:          uint64(eventIndex),
 			},
 			Payload: payload,
 		}
