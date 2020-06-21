@@ -11,12 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package persistence
+package bbolt
 
 import (
 	"fmt"
 	"strconv"
 
+	p "github.com/AsynkronIT/protoactor-go/persistence"
+	"github.com/ccamel/playground-protoactor.go/internal/persistence"
 	"github.com/ccamel/playground-protoactor.go/internal/util"
 	"github.com/golang/protobuf/descriptor" //nolint:staticcheck // use same version than protoactor library
 	"github.com/golang/protobuf/proto"      //nolint:staticcheck // use same version than protoactor library
@@ -29,12 +31,12 @@ var (
 	ErrNotFound = fmt.Errorf("not found")
 )
 
-type BBoltProvider struct {
+type ProviderState struct {
 	snapshotInterval int
 	db               *bolt.DB
 }
 
-func NewBBoltProvider(snapshotInterval int) (*Provider, error) {
+func NewProvider(snapshotInterval int) (p.Provider, error) {
 	db, err := bolt.Open("./my-db", 0666, nil)
 	if err != nil {
 		return nil, err
@@ -59,20 +61,20 @@ func NewBBoltProvider(snapshotInterval int) (*Provider, error) {
 	}
 
 	return &Provider{
-		providerState: &BBoltProvider{
+		providerState: &ProviderState{
 			snapshotInterval: snapshotInterval,
 			db:               db,
 		},
 	}, nil
 }
 
-func (provider *BBoltProvider) Restart() {}
+func (provider *ProviderState) Restart() {}
 
-func (provider *BBoltProvider) GetSnapshotInterval() int {
+func (provider *ProviderState) GetSnapshotInterval() int {
 	return provider.snapshotInterval
 }
 
-func (provider *BBoltProvider) GetSnapshot(actorName string) (interface{}, int, bool) {
+func (provider *ProviderState) GetSnapshot(actorName string) (interface{}, int, bool) {
 	var message interface{}
 
 	var eventIndex int
@@ -85,13 +87,13 @@ func (provider *BBoltProvider) GetSnapshot(actorName string) (interface{}, int, 
 			return fmt.Errorf("snapshot %d not found: %w", eventIndex, ErrNotFound)
 		}
 
-		var entity Snapshot
+		var entity persistence.Snapshot
 		err := proto.Unmarshal(buf, &entity)
 		if err != nil {
 			return err
 		}
 
-		message = &ConsiderSnapshot{
+		message = &persistence.ConsiderSnapshot{
 			Payload: entity.Payload,
 		}
 		eventIndex = int(entity.Metadata.Index)
@@ -102,7 +104,7 @@ func (provider *BBoltProvider) GetSnapshot(actorName string) (interface{}, int, 
 	return message, eventIndex, err == nil
 }
 
-func (provider *BBoltProvider) PersistSnapshot(actorName string, eventIndex int, snapshot proto.Message) {
+func (provider *ProviderState) PersistSnapshot(actorName string, eventIndex int, snapshot proto.Message) {
 	err := provider.db.Update(func(tx *bolt.Tx) error {
 		payload, err := ptypes.MarshalAny(snapshot)
 		if err != nil {
@@ -111,8 +113,8 @@ func (provider *BBoltProvider) PersistSnapshot(actorName string, eventIndex int,
 
 		_, desc := descriptor.MessageDescriptorProto(snapshot)
 
-		entity := &Snapshot{
-			Metadata: &Snapshot_Metadata{
+		entity := &persistence.Snapshot{
+			Metadata: &persistence.Snapshot_Metadata{
 				Id:        actorName,
 				Type:      *desc.Name,
 				Timestamp: ptypes.TimestampNow(),
@@ -139,7 +141,7 @@ func (provider *BBoltProvider) PersistSnapshot(actorName string, eventIndex int,
 	}
 }
 
-func (provider *BBoltProvider) GetEvents(actorName string, eventIndexStart int, callback func(e interface{})) {
+func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, callback func(e interface{})) {
 	err := provider.db.View(func(tx *bolt.Tx) error {
 		actorBucket := provider.
 			eventsBucket(tx).
@@ -151,7 +153,7 @@ func (provider *BBoltProvider) GetEvents(actorName string, eventIndexStart int, 
 		c := actorBucket.Cursor()
 
 		for k, v := c.Seek(util.Itob(int64(eventIndexStart))); k != nil; k, v = c.Next() {
-			var entity Event
+			var entity persistence.Event
 			err := proto.Unmarshal(v, &entity)
 			if err != nil {
 				return err
@@ -173,7 +175,7 @@ func (provider *BBoltProvider) GetEvents(actorName string, eventIndexStart int, 
 	}
 }
 
-func (provider *BBoltProvider) PersistEvent(actorName string, eventIndex int, event proto.Message) {
+func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, event proto.Message) {
 	err := provider.db.Update(func(tx *bolt.Tx) error {
 		actorBucket, err := provider.
 			eventsBucket(tx).
@@ -190,8 +192,8 @@ func (provider *BBoltProvider) PersistEvent(actorName string, eventIndex int, ev
 		id, _ := actorBucket.NextSequence()
 		_, desc := descriptor.MessageDescriptorProto(event)
 
-		entity := &Event{
-			Metadata: &Event_Metadata{
+		entity := &persistence.Event{
+			Metadata: &persistence.Event_Metadata{
 				Id:        strconv.FormatUint(id, 10),
 				Type:      *desc.Name,
 				Timestamp: ptypes.TimestampNow(),
@@ -216,10 +218,10 @@ func (provider *BBoltProvider) PersistEvent(actorName string, eventIndex int, ev
 	}
 }
 
-func (provider *BBoltProvider) eventsBucket(tx *bolt.Tx) *bolt.Bucket {
+func (provider *ProviderState) eventsBucket(tx *bolt.Tx) *bolt.Bucket {
 	return tx.Bucket([]byte("events"))
 }
 
-func (provider *BBoltProvider) snapshotsBucket(tx *bolt.Tx) *bolt.Bucket {
+func (provider *ProviderState) snapshotsBucket(tx *bolt.Tx) *bolt.Bucket {
 	return tx.Bucket([]byte("snapshots"))
 }

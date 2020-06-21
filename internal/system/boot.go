@@ -20,7 +20,7 @@ import (
 	"github.com/AsynkronIT/protoactor-go/actor/middleware/propagator"
 	"github.com/AsynkronIT/protoactor-go/plugin"
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
-	persistence2 "github.com/ccamel/playground-protoactor.go/internal/persistence"
+	"github.com/ccamel/playground-protoactor.go/internal/persistence/bbolt"
 	"github.com/ccamel/playground-protoactor.go/internal/system/core"
 	"github.com/rs/zerolog/log"
 	DEATH "gopkg.in/vrecan/death.v3"
@@ -56,7 +56,7 @@ func Boot() (*System, error) {
 		Str("actor", "/").
 		Msg("booting the system...")
 
-	provider, err := persistence2.NewBBoltProvider(3)
+	provider, err := bbolt.NewProvider(3)
 	if err != nil {
 		return nil, err
 	}
