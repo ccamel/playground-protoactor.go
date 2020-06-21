@@ -7,20 +7,23 @@ import "google/protobuf/timestamp.proto";
 
 message BookRegistered {
     string id = 1;
-    string title = 2;
-    string isbn = 3;
+    google.protobuf.Timestamp timestamp = 2;
+    string title = 3;
+    string isbn = 4;
 }
 
 message BookLent {
     string id = 1;
-    string borrower = 2;
-    google.protobuf.Timestamp date = 3;
-    google.protobuf.Duration expectedDuration = 4;
+    google.protobuf.Timestamp timestamp = 2;
+    string borrower = 3;
+    google.protobuf.Timestamp date = 4;
+    google.protobuf.Duration expectedDuration = 5;
 }
 
 message BookReturned {
     string id = 1;
-    string by = 2;
-    google.protobuf.Timestamp date = 3;
-    google.protobuf.Duration lentDuration = 4;
+    google.protobuf.Timestamp timestamp = 2;
+    string by = 3;
+    google.protobuf.Timestamp date = 4;
+    google.protobuf.Duration lentDuration = 5;
 }

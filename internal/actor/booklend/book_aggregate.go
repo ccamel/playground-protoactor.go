@@ -170,15 +170,17 @@ func (a *BookAggregate) toEvents(command interface{}) []model.Event {
 	case *RegisterBook:
 		return []model.Event{
 			&BookRegistered{
-				Id:    cmd.BookId,
-				Title: cmd.Title,
-				Isbn:  cmd.Isbn,
+				Id:        cmd.BookId,
+				Timestamp: ptypes.TimestampNow(),
+				Title:     cmd.Title,
+				Isbn:      cmd.Isbn,
 			},
 		}
 	case *LendBook:
 		return []model.Event{
 			&BookLent{
 				Id:               cmd.BookId,
+				Timestamp:        ptypes.TimestampNow(),
 				Borrower:         cmd.Borrower,
 				Date:             cmd.Date,
 				ExpectedDuration: cmd.ExpectedDuration,
@@ -191,6 +193,7 @@ func (a *BookAggregate) toEvents(command interface{}) []model.Event {
 		return []model.Event{
 			&BookReturned{
 				Id:           cmd.BookId,
+				Timestamp:    ptypes.TimestampNow(),
 				By:           a.state.Borrower,
 				Date:         cmd.Date,
 				LentDuration: ptypes.DurationProto(t2.Sub(t1)),

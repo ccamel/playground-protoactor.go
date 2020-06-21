@@ -13,7 +13,10 @@
 // limitations under the License.
 package model
 
+import "github.com/golang/protobuf/ptypes/timestamp"
+
 // Event specifies the common behaviour for all events.
 type Event interface {
 	GetId() string
+	GetTimestamp() *timestamp.Timestamp
 }
