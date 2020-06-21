@@ -5,11 +5,16 @@ go 1.14
 require (
 	github.com/AsynkronIT/protoactor-go v0.0.0-20200317173033-c483abfa40e2
 	github.com/Workiva/go-datastructures v1.0.52 // indirect
+	github.com/boltdb/bolt v1.3.1
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.4.2
+	github.com/google/uuid v1.1.1
+	github.com/i9/bar v0.0.0-20191101181816-5c944ef12f32
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.3.2 // indirect
+	github.com/oklog/ulid v1.3.1
 	github.com/orcaman/concurrent-map v0.0.0-20190826125027-8c72a8bb44f6 // indirect
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/rs/zerolog v1.19.0
