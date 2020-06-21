@@ -15,13 +15,17 @@ package bbolt
 
 import (
 	"fmt"
-	"strconv"
+	"io"
+	"math/rand"
+	"sync"
+	"time"
 
 	p "github.com/AsynkronIT/protoactor-go/persistence"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence"
 	"github.com/ccamel/playground-protoactor.go/internal/util"
 	"github.com/golang/protobuf/proto"  //nolint:staticcheck // use same version than protoactor library
 	"github.com/golang/protobuf/ptypes" //nolint:staticcheck // use same version than protoactor library
+	"github.com/oklog/ulid"
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
 )
@@ -33,6 +37,8 @@ var (
 type ProviderState struct {
 	snapshotInterval int
 	db               *bolt.DB
+	mu               sync.Mutex
+	entropy          io.Reader
 }
 
 func NewProvider(snapshotInterval int) (p.Provider, error) {
@@ -63,6 +69,7 @@ func NewProvider(snapshotInterval int) (p.Provider, error) {
 		providerState: &ProviderState{
 			snapshotInterval: snapshotInterval,
 			db:               db,
+			entropy:          ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0),
 		},
 	}, nil
 }
@@ -185,10 +192,12 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 			return err
 		}
 
-		id, _ := actorBucket.NextSequence()
+		provider.mu.Lock()
+		id := ulid.MustNew(ulid.Timestamp(time.Now()), provider.entropy)
+		provider.mu.Unlock()
 
 		entity := &persistence.Event{
-			Id: strconv.FormatUint(id, 10),
+			Id: id.String(),
 			Metadata: &persistence.Event_Metadata{
 				StorageTimestamp: ptypes.TimestampNow(),
 				Version:          uint64(eventIndex),
