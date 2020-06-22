@@ -156,15 +156,15 @@ func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, 
 		c := actorBucket.Cursor()
 
 		for k, v := c.Seek(util.Itob(int64(eventIndexStart))); k != nil; k, v = c.Next() {
+			buf := provider.eventsBucket(tx).Get(v)
+
 			var entity persistence.Event
-			err := proto.Unmarshal(v, &entity)
-			if err != nil {
+			if err := proto.Unmarshal(buf, &entity); err != nil {
 				return err
 			}
 
 			var dynamic ptypes.DynamicAny
-			err = ptypes.UnmarshalAny(entity.Payload, &dynamic)
-			if err != nil {
+			if err := ptypes.UnmarshalAny(entity.Payload, &dynamic); err != nil {
 				return err
 			}
 
@@ -180,21 +180,34 @@ func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, 
 
 func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, event proto.Message) {
 	err := provider.db.Update(func(tx *bolt.Tx) error {
-		actorBucket, err := provider.
+		provider.mu.Lock()
+		id := ulid.MustNew(ulid.Timestamp(time.Now()), provider.entropy)
+		provider.mu.Unlock()
+
+		binID, err := id.MarshalBinary()
+		if err != nil {
+			return err
+		}
+
+		// store in the aggregate bucket the version number and the id of the record in the
+		// events bucket.
+		aggregateBucket, err := provider.
 			eventsBucket(tx).
 			CreateBucketIfNotExists([]byte(actorName))
 		if err != nil {
 			return err
 		}
 
-		payload, err := ptypes.MarshalAny(event)
+		err = aggregateBucket.Put(util.Itob(int64(eventIndex)), binID)
 		if err != nil {
 			return err
 		}
 
-		provider.mu.Lock()
-		id := ulid.MustNew(ulid.Timestamp(time.Now()), provider.entropy)
-		provider.mu.Unlock()
+		// store in the events bucket the event
+		payload, err := ptypes.MarshalAny(event)
+		if err != nil {
+			return err
+		}
 
 		entity := &persistence.Event{
 			Id: id.String(),
@@ -212,7 +225,9 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 			return err
 		}
 
-		err = actorBucket.Put(util.Itob(int64(eventIndex)), buf)
+		err = provider.
+			eventsBucket(tx).
+			Put(binID, buf)
 
 		return err
 	})
@@ -221,6 +236,8 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 	}
 }
 
+// eventsBucket returns the bucket where all the events are stored in sequential order.
+// In this bucket, a sub-bucket is created per aggregateId for quick retrieval of events for a considered aggregate.
 func (provider *ProviderState) eventsBucket(tx *bolt.Tx) *bolt.Bucket {
 	return tx.Bucket([]byte("events"))
 }
