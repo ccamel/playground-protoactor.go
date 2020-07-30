@@ -3,7 +3,7 @@ module github.com/ccamel/playground-protoactor.go
 go 1.14
 
 require (
-	github.com/AsynkronIT/protoactor-go v0.0.0-20200317173033-c483abfa40e2
+	github.com/AsynkronIT/protoactor-go v0.0.0-20200729120717-be0cc59aab76
 	github.com/Workiva/go-datastructures v1.0.52 // indirect
 	github.com/boltdb/bolt v1.3.1
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
