@@ -28,11 +28,11 @@ type BookService struct {
 func (a *BookService) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *RegisterBook:
-		a.apply(context, msg.BookId)
+		a.doCommand(context, msg.BookId)
 	case *LendBook:
-		a.apply(context, msg.BookId)
+		a.doCommand(context, msg.BookId)
 	case *ReturnBook:
-		a.apply(context, msg.BookId)
+		a.doCommand(context, msg.BookId)
 	default:
 		if context.Sender() != nil {
 			context.Respond(&CommandStatus{
@@ -43,8 +43,8 @@ func (a *BookService) Receive(context actor.Context) {
 	}
 }
 
-// apply applies the given event to the aggregate.
-func (a *BookService) apply(context actor.Context, id string) {
+// doCommand process the given command to the aggregate.
+func (a *BookService) doCommand(context actor.Context, id string) {
 	book, err := getOrSpawn(context, id)
 	if err != nil {
 		context.Respond(&CommandStatus{
