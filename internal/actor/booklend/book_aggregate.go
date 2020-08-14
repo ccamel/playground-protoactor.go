@@ -15,12 +15,11 @@ package booklend
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/persistence"
-	"github.com/ccamel/playground-protoactor.go/internal/model"
 	persistence2 "github.com/ccamel/playground-protoactor.go/internal/persistence"
+	"github.com/gogo/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/genproto/googleapis/rpc/code"
 )
@@ -39,8 +38,6 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 	switch msg := message.(type) {
 	case *actor.Started:
 		a.state = &BookEntity{}
-
-		context.SetReceiveTimeout(10 * time.Second)
 	case *actor.ReceiveTimeout:
 		context.Stop(context.Self())
 	case *persistence.RequestSnapshot:
@@ -64,12 +61,18 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 			break
 		}
 
-		context.Respond(&CommandStatus{
-			Code:    code.Code_OK,
-			Message: fmt.Sprintf("book registered with id %s", msg.BookId),
-		})
-
-		a.applyEvents(context, a.toEvents(msg))
+		a.applyAndReply(
+			context,
+			&CommandStatus{
+				Code:    code.Code_OK,
+				Message: fmt.Sprintf("book registered with id %s", msg.BookId),
+			},
+			&BookRegistered{
+				Id:        msg.BookId,
+				Timestamp: ptypes.TimestampNow(),
+				Title:     msg.Title,
+				Isbn:      msg.Isbn,
+			})
 	case *LendBook:
 		if msg.Borrower == "" {
 			context.Respond(&CommandStatus{
@@ -89,12 +92,19 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 			break
 		}
 
-		context.Respond(&CommandStatus{
-			Code:    code.Code_OK,
-			Message: fmt.Sprintf("book registered with id %s", msg.BookId),
-		})
-
-		a.applyEvents(context, a.toEvents(msg))
+		a.applyAndReply(
+			context,
+			&CommandStatus{
+				Code:    code.Code_OK,
+				Message: fmt.Sprintf("book registered with id %s", msg.BookId),
+			},
+			&BookLent{
+				Id:               msg.BookId,
+				Timestamp:        ptypes.TimestampNow(),
+				Borrower:         msg.Borrower,
+				Date:             msg.Date,
+				ExpectedDuration: msg.ExpectedDuration,
+			})
 	case *ReturnBook:
 		if a.state.Borrower == "" {
 			context.Respond(&CommandStatus{
@@ -134,80 +144,52 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 			break
 		}
 
-		context.Respond(&CommandStatus{
-			Code:    code.Code_OK,
-			Message: fmt.Sprintf("book registered with id %s", msg.BookId),
-		})
+		a.applyAndReply(
+			context,
+			&CommandStatus{
+				Code:    code.Code_OK,
+				Message: fmt.Sprintf("book registered with id %s", msg.BookId),
+			},
+			&BookReturned{
+				Id:           msg.BookId,
+				Timestamp:    ptypes.TimestampNow(),
+				By:           a.state.Borrower,
+				Date:         msg.Date,
+				LentDuration: ptypes.DurationProto(t2.Sub(t1)),
+			})
 
-		a.applyEvents(context, a.toEvents(msg))
+
 	case *BookRegistered:
 		a.state.Id = msg.Id
 		a.state.Isbn = msg.Isbn
 		a.state.Title = msg.Title
 
-		if !a.Recovering() {
-			a.PersistReceive(msg)
-		}
 	case *BookLent:
 		a.state.Borrower = msg.Borrower
 		a.state.Date = msg.Date
 		a.state.ExpectedDuration = msg.ExpectedDuration
 
-		if !a.Recovering() {
-			a.PersistReceive(msg)
-		}
 	case *BookReturned:
 		a.state.Borrower = ""
-
-		if !a.Recovering() {
-			a.PersistReceive(msg)
-		}
 	}
 }
 
-func (a *BookAggregate) toEvents(command interface{}) []model.Event {
-	switch cmd := command.(type) {
-	case *RegisterBook:
-		return []model.Event{
-			&BookRegistered{
-				Id:        cmd.BookId,
-				Timestamp: ptypes.TimestampNow(),
-				Title:     cmd.Title,
-				Isbn:      cmd.Isbn,
-			},
-		}
-	case *LendBook:
-		return []model.Event{
-			&BookLent{
-				Id:               cmd.BookId,
-				Timestamp:        ptypes.TimestampNow(),
-				Borrower:         cmd.Borrower,
-				Date:             cmd.Date,
-				ExpectedDuration: cmd.ExpectedDuration,
-			},
-		}
-	case *ReturnBook:
-		t2, _ := ptypes.Timestamp(cmd.Date)
-		t1, _ := ptypes.Timestamp(a.state.Date)
+func (a *BookAggregate) applyAndReply(context actor.Context, response proto.Message, events ...proto.Message) {
+	// save sender - issue https://github.com/AsynkronIT/protoactor-go/issues/256
+	sender := context.Sender()
 
-		return []model.Event{
-			&BookReturned{
-				Id:           cmd.BookId,
-				Timestamp:    ptypes.TimestampNow(),
-				By:           a.state.Borrower,
-				Date:         cmd.Date,
-				LentDuration: ptypes.DurationProto(t2.Sub(t1)),
-			},
-		}
-	}
-
-	return nil
-}
-
-func (a *BookAggregate) applyEvents(context actor.Context, events []model.Event) {
 	for _, event := range events {
 		a.handleMessage(context, event)
+		a.PersistReceive(event)
 	}
+
+	if response != nil {
+		context.Send(sender, response)
+	}
+}
+
+func (a *BookAggregate) apply(context actor.Context, events ...proto.Message) {
+	a.applyAndReply(context, nil, events...)
 }
 
 func newBookAggregate() *actor.Props {
