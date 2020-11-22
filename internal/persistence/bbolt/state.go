@@ -14,6 +14,7 @@
 package bbolt
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"math/rand"
@@ -144,7 +145,7 @@ func (provider *ProviderState) PersistSnapshot(actorName string, eventIndex int,
 	}
 }
 
-func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, callback func(e interface{})) {
+func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, eventIndexEnd int, callback func(e interface{})) {
 	err := provider.db.View(func(tx *bolt.Tx) error {
 		actorBucket := provider.
 			eventsBucket(tx).
@@ -155,7 +156,7 @@ func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, 
 
 		c := actorBucket.Cursor()
 
-		for k, v := c.Seek(util.Itob(int64(eventIndexStart))); k != nil; k, v = c.Next() {
+		for k, v := c.Seek(util.Itob(int64(eventIndexStart))); k != nil && bytes.Compare(k, util.Itob(int64(eventIndexEnd))) <= 0; k, v = c.Next() {
 			buf := provider.eventsBucket(tx).Get(v)
 
 			var entity persistence.Event
@@ -234,6 +235,14 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 	if err != nil { // TODO: use panic instead
 		log.Error().Err(err).Msg("Failed to persist event")
 	}
+}
+
+func (provider *ProviderState) DeleteEvents(actorName string, inclusiveToIndex int) {
+	// TODO: implement me!
+}
+
+func (provider *ProviderState) DeleteSnapshots(actorName string, inclusiveToIndex int) {
+	// TODO: implement me!
 }
 
 // eventsBucket returns the bucket where all the events are stored in sequential order.
