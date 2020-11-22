@@ -3,6 +3,9 @@
     "config:base"
   ],
   "commitMessagePrefix": ":arrow_up:",
+  "reviewers": [
+    "ccamel"
+  ],
   "assignees": [
     "ccamel"
   ]
