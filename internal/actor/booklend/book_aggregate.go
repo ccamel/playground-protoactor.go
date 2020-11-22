@@ -158,7 +158,6 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 				LentDuration: ptypes.DurationProto(t2.Sub(t1)),
 			})
 
-
 	case *BookRegistered:
 		a.state.Id = msg.Id
 		a.state.Isbn = msg.Isbn
@@ -188,6 +187,7 @@ func (a *BookAggregate) applyAndReply(context actor.Context, response proto.Mess
 	}
 }
 
+// nolint:unused
 func (a *BookAggregate) apply(context actor.Context, events ...proto.Message) {
 	a.applyAndReply(context, nil, events...)
 }
