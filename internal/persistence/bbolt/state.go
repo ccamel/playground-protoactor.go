@@ -25,7 +25,7 @@ import (
 	"github.com/ccamel/playground-protoactor.go/internal/util"
 	"github.com/golang/protobuf/proto"  //nolint:staticcheck // use same version than protoactor library
 	"github.com/golang/protobuf/ptypes" //nolint:staticcheck // use same version than protoactor library
-	"github.com/oklog/ulid"
+	"github.com/oklog/ulid/v2"
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
 )
