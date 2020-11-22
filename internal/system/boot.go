@@ -62,7 +62,7 @@ func Boot() (*System, error) {
 	}
 
 	rootContext := actor.
-		NewRootContext(nil).
+		NewRootContext(nil, nil).
 		WithGuardian(actor.DefaultSupervisorStrategy()).
 		WithSpawnMiddleware(
 			propagator.New().
