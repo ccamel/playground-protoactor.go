@@ -23,7 +23,7 @@ import (
 	"github.com/ccamel/playground-protoactor.go/internal/persistence/bbolt"
 	"github.com/ccamel/playground-protoactor.go/internal/system/core"
 	"github.com/rs/zerolog/log"
-	DEATH "gopkg.in/vrecan/death.v3"
+	DEATH "github.com/vrecan/death"
 )
 
 type System struct {
