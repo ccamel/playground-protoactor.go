@@ -56,13 +56,15 @@ func Boot() (*System, error) {
 		Str("actor", "/").
 		Msg("booting the system...")
 
+	system := actor.NewActorSystem()
+
 	provider, err := bbolt.NewProvider(3)
 	if err != nil {
 		return nil, err
 	}
 
-	rootContext := actor.
-		NewRootContext(nil, nil).
+	rootContext := system.
+		Root.
 		WithGuardian(actor.DefaultSupervisorStrategy()).
 		WithSpawnMiddleware(
 			propagator.New().
