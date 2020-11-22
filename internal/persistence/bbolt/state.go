@@ -69,7 +69,7 @@ func NewProvider(snapshotInterval int) (p.Provider, error) {
 		providerState: &ProviderState{
 			snapshotInterval: snapshotInterval,
 			db:               db,
-			entropy:          ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0),
+			entropy:          ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0), //nolint:gosec
 		},
 	}, nil
 }
