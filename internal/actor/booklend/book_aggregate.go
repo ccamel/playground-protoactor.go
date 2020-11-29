@@ -187,11 +187,6 @@ func (a *BookAggregate) applyAndReply(context actor.Context, response proto.Mess
 	}
 }
 
-// nolint:unused
-func (a *BookAggregate) apply(context actor.Context, events ...proto.Message) {
-	a.applyAndReply(context, nil, events...)
-}
-
 func newBookAggregate() *actor.Props {
 	return actor.
 		PropsFromProducer(func() actor.Actor {
