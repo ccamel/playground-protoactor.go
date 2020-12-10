@@ -15,6 +15,7 @@ github.com/AsynkronIT/goconsole v0.0.0-20160504192649-bfa12eebf716/go.mod h1:2wH
 github.com/AsynkronIT/gonet v0.0.0-20161127091928-0553637be225/go.mod h1:RwIiSK8AJBCPP7hBBfXD1iferErYAmGbqv/Lu84ZFIA=
 github.com/AsynkronIT/protoactor-go v0.0.0-20200729120717-be0cc59aab76 h1:8gD1VKF9Rxj4/u0etljYYeK4UOqzQPQweyWW9J+rvFo=
 github.com/AsynkronIT/protoactor-go v0.0.0-20200729120717-be0cc59aab76/go.mod h1:8kL0/lZO4SCgQJiHxbKcZFvulPzd6uFF7ilqvz2SwFg=
+github.com/AsynkronIT/protoactor-go v0.0.0-20201121081743-27a5e6684be6 h1:6HReZSBFIGbXkIT7Hm4OxQbHw7v3njfmJPPYC1NluMA=
 github.com/AsynkronIT/protoactor-go v0.0.0-20201121081743-27a5e6684be6/go.mod h1:d/mmJA/N2WHh1nOhFkA8YmOQmsXo/VY3sUD2362NLB4=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
@@ -443,6 +444,8 @@ google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 h1:+kGHl1aib/qcwaR
 google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013/go.mod h1:NbSheEEYHJ7i3ixzK3sjbqSGDJWnxyFXZblF3eUsNvo=
 google.golang.org/genproto v0.0.0-20200618031413-b414f8b61790 h1:FGjyjrQGURdc98leD1P65IdQD9Zlr4McvRcqIlV6OSs=
 google.golang.org/genproto v0.0.0-20200618031413-b414f8b61790/go.mod h1:jDfRM7FcilCzHH/e9qn6dsT145K34l5v+OpcnNgKAAA=
+google.golang.org/genproto v0.0.0-20201210142538-e3217bee35cc h1:BgQmMjmd7K1zov8j8lYULHW0WnmBGUIMp6+VDwlGErc=
+google.golang.org/genproto v0.0.0-20201210142538-e3217bee35cc/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/grpc v1.19.0/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZiDr8c=
 google.golang.org/grpc v1.20.1/go.mod h1:10oTOabMzJvdu6/UiuZezV6QK5dSlG84ov/aaiqXj38=
 google.golang.org/grpc v1.21.1/go.mod h1:oYelfM1adQP15Ek0mdvEgi9Df8B9CZIaU1084ijfRaM=
