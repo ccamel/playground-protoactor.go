@@ -21,29 +21,41 @@ import (
 	"sync"
 	"time"
 
+	"github.com/AsynkronIT/protoactor-go/actor"
 	p "github.com/AsynkronIT/protoactor-go/persistence"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence"
 	"github.com/ccamel/playground-protoactor.go/internal/util"
 	"github.com/golang/protobuf/proto"  //nolint:staticcheck // use same version than protoactor library
 	"github.com/golang/protobuf/ptypes" //nolint:staticcheck // use same version than protoactor library
+	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
+	"go.uber.org/atomic"
 )
 
 var (
 	ErrNotFound = fmt.Errorf("not found")
 )
 
-type ProviderState struct {
-	snapshotInterval int
-	db               *bolt.DB
-	mu               sync.Mutex
-	entropy          io.Reader
+type subscription struct {
+	actor     *actor.PID
+	predicate persistence.EventPredicate
+	handler   func(event proto.Message)
 }
 
-func NewProvider(snapshotInterval int) (p.Provider, error) {
-	db, err := bolt.Open("./my-db", 0666, nil)
+type ProviderState struct {
+	system           *actor.ActorSystem
+	snapshotInterval int
+	db               *bolt.DB
+	muID             sync.Mutex
+	muPublish        sync.Mutex
+	entropy          io.Reader
+	subscribers      *sync.Map
+}
+
+func NewProvider(system *actor.ActorSystem, path string, snapshotInterval int) (p.Provider, error) {
+	db, err := bolt.Open(path, 0666, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -68,9 +80,11 @@ func NewProvider(snapshotInterval int) (p.Provider, error) {
 
 	return &Provider{
 		providerState: &ProviderState{
+			system:           system,
 			snapshotInterval: snapshotInterval,
 			db:               db,
 			entropy:          ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0), //nolint:gosec
+			subscribers:      &sync.Map{},
 		},
 	}, nil
 }
@@ -94,16 +108,16 @@ func (provider *ProviderState) GetSnapshot(actorName string) (interface{}, int, 
 			return fmt.Errorf("snapshot %d not found: %w", eventIndex, ErrNotFound)
 		}
 
-		var entity persistence.Snapshot
-		err := proto.Unmarshal(buf, &entity)
+		var record persistence.SnapshotRecord
+		err := proto.Unmarshal(buf, &record)
 		if err != nil {
 			return err
 		}
 
 		message = &persistence.ConsiderSnapshot{
-			Payload: entity.Payload,
+			Payload: record.Payload,
 		}
-		eventIndex = int(entity.Metadata.Version)
+		eventIndex = int(record.Version)
 
 		return nil
 	})
@@ -118,13 +132,12 @@ func (provider *ProviderState) PersistSnapshot(actorName string, eventIndex int,
 			return err
 		}
 
-		entity := &persistence.Snapshot{
-			Id: actorName,
-			Metadata: &persistence.Snapshot_Metadata{
-				StorageTimestamp: ptypes.TimestampNow(),
-				Version:          uint64(eventIndex),
-			},
-			Payload: payload,
+		entity := &persistence.SnapshotRecord{
+			Id:               actorName,
+			Type:             payload.TypeUrl,
+			Version:          uint64(eventIndex),
+			StorageTimestamp: ptypes.TimestampNow(),
+			Payload:          payload,
 		}
 
 		log.Info().Interface("entity", entity).Msg("Snapshot saved")
@@ -156,20 +169,16 @@ func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, 
 
 		c := actorBucket.Cursor()
 
-		for k, v := c.Seek(util.Itob(int64(eventIndexStart))); k != nil && bytes.Compare(k, util.Itob(int64(eventIndexEnd))) <= 0; k, v = c.Next() {
+		for k, v := c.Seek(util.Itob(int64(eventIndexStart))); k != nil &&
+			(!(bytes.Compare(k, util.Itob(int64(eventIndexEnd))) <= 0) || (eventIndexEnd == 0)); k, v = c.Next() {
 			buf := provider.eventsBucket(tx).Get(v)
 
-			var entity persistence.Event
-			if err := proto.Unmarshal(buf, &entity); err != nil {
+			any, err := unmarshallPayload(buf)
+			if err != nil {
 				return err
 			}
 
-			var dynamic ptypes.DynamicAny
-			if err := ptypes.UnmarshalAny(entity.Payload, &dynamic); err != nil {
-				return err
-			}
-
-			callback(dynamic.Message)
+			callback(any)
 		}
 
 		return nil
@@ -180,16 +189,36 @@ func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, 
 }
 
 func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, event proto.Message) {
-	err := provider.db.Update(func(tx *bolt.Tx) error {
-		provider.mu.Lock()
-		id := ulid.MustNew(ulid.Timestamp(time.Now()), provider.entropy)
-		provider.mu.Unlock()
+	id, entity, err := func() (ulid.ULID, *persistence.EventRecord, error) {
+		provider.muID.Lock()
+		id, err := ulid.New(ulid.Timestamp(time.Now()), provider.entropy)
+		provider.muID.Unlock()
 
-		binID, err := id.MarshalBinary()
 		if err != nil {
-			return err
+			return ulid.ULID{}, nil, err
 		}
 
+		payload, err := ptypes.MarshalAny(event)
+		if err != nil {
+			return id, nil, err
+		}
+
+		return id, &persistence.EventRecord{
+			Id:               id.String(),
+			Type:             payload.TypeUrl,
+			StreamId:         actorName,
+			Version:          uint64(eventIndex),
+			StorageTimestamp: ptypes.TimestampNow(),
+			Payload:          payload,
+		}, nil
+	}()
+	if err != nil { // TODO: use panic instead
+		log.Error().Err(err).Msg("Failed to create entity event")
+
+		return
+	}
+
+	err = provider.db.Update(func(tx *bolt.Tx) error {
 		// store in the aggregate bucket the version number and the id of the record in the
 		// events bucket.
 		aggregateBucket, err := provider.
@@ -199,42 +228,122 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 			return err
 		}
 
-		err = aggregateBucket.Put(util.Itob(int64(eventIndex)), binID)
+		binID, err := id.MarshalBinary()
 		if err != nil {
 			return err
 		}
 
-		// store in the events bucket the event
-		payload, err := ptypes.MarshalAny(event)
-		if err != nil {
-			return err
-		}
-
-		entity := &persistence.Event{
-			Id: id.String(),
-			Metadata: &persistence.Event_Metadata{
-				StorageTimestamp: ptypes.TimestampNow(),
-				Version:          uint64(eventIndex),
-			},
-			Payload: payload,
-		}
-
-		log.Info().Interface("entity", entity).Msg("Event saved")
+		entity.SequenceNumber, _ = provider.eventsBucket(tx).NextSequence()
 
 		buf, err := proto.Marshal(entity)
 		if err != nil {
 			return err
 		}
 
-		err = provider.
+		err = aggregateBucket.Put(util.Itob(int64(eventIndex)), binID)
+		if err != nil {
+			return err
+		}
+
+		return provider.
 			eventsBucket(tx).
 			Put(binID, buf)
-
-		return err
 	})
+
 	if err != nil { // TODO: use panic instead
-		log.Error().Err(err).Msg("Failed to persist event")
+		log.Error().Err(err).Interface("entity", entity).Msg("Failed to persist event")
+
+		return
 	}
+
+	provider.publish(entity)
+
+	log.Info().Interface("entity", entity).Msg("Event saved")
+}
+
+func (provider *ProviderState) publish(event *persistence.EventRecord) {
+	provider.muPublish.Lock()
+	defer provider.muPublish.Unlock()
+
+	provider.subscribers.Range(func(_, value interface{}) bool {
+		sub := value.(subscription)
+		if sub.predicate(event) {
+			sub.handler(event)
+		}
+
+		return true
+	})
+}
+
+func (provider *ProviderState) Subscribe(pid *actor.PID, last *string, predicate persistence.EventPredicate) persistence.SubscriptionID {
+	flag := atomic.NewBool(false)
+	buffer := make([]interface{}, 0, 64)
+
+	subscriptionID := uuid.New().String()
+	provider.subscribers.Store(
+		subscriptionID,
+		subscription{
+			actor:     pid,
+			predicate: predicate,
+			handler: func(event proto.Message) {
+				switch flag.Load() {
+				case false:
+					buffer = append(buffer, event)
+				case true:
+					if len(buffer) != 0 {
+						for _, oldEvt := range buffer {
+							provider.system.Root.Send(pid, oldEvt)
+						}
+						buffer = nil
+					}
+
+					provider.system.Root.Send(pid, event)
+				}
+			},
+		},
+	)
+
+	go func() {
+		defer func() {
+			flag.Toggle()
+		}()
+
+		err := provider.db.View(func(tx *bolt.Tx) error {
+			c := provider.eventsBucket(tx).Cursor()
+
+			for k, v := c.First(); k != nil; k, v = c.Next() {
+				if last != nil && bytes.Compare(k, []byte(*last)) < 0 {
+					continue
+				}
+
+				buf := provider.eventsBucket(tx).Get(v)
+
+				evt, err := unmarshallPayload(buf)
+				if err != nil {
+					return err
+				}
+
+				if predicate(evt.(*persistence.EventRecord)) {
+					provider.system.Root.Send(pid, evt)
+				}
+			}
+
+			return nil
+		})
+		if err != nil {
+			return
+		}
+	}()
+
+	return persistence.SubscriptionID(subscriptionID)
+}
+
+func (provider *ProviderState) Unsubscribe(subscriptionID persistence.SubscriptionID) {
+
+}
+
+func (provider *ProviderState) Close() error {
+	return provider.db.Close()
 }
 
 func (provider *ProviderState) DeleteEvents(actorName string, inclusiveToIndex int) {
@@ -253,4 +362,18 @@ func (provider *ProviderState) eventsBucket(tx *bolt.Tx) *bolt.Bucket {
 
 func (provider *ProviderState) snapshotsBucket(tx *bolt.Tx) *bolt.Bucket {
 	return tx.Bucket([]byte("snapshots"))
+}
+
+func unmarshallPayload(buf []byte) (interface{}, error) {
+	var entity persistence.EventRecord
+	if err := proto.Unmarshal(buf, &entity); err != nil {
+		return nil, err
+	}
+
+	var dynamic ptypes.DynamicAny
+	if err := ptypes.UnmarshalAny(entity.Payload, &dynamic); err != nil {
+		return nil, err
+	}
+
+	return dynamic.Message, nil
 }

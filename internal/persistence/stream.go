@@ -11,12 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package model
+package persistence
 
-import "github.com/golang/protobuf/ptypes/timestamp"
+import (
+	"github.com/AsynkronIT/protoactor-go/actor"
+)
 
-// Event specifies the common behaviour for all events.
-type Event interface {
-	GetId() string
-	GetTimestamp() *timestamp.Timestamp
+type EventPredicate func(event *EventRecord) bool
+
+type SubscriptionID string
+
+type EventStreamStore interface {
+	// Subscribe does a subscription for events.
+	Subscribe(pid *actor.PID, start *string, predicate EventPredicate) SubscriptionID
+	Unsubscribe(SubscriptionID)
 }

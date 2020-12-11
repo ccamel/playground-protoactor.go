@@ -58,14 +58,22 @@ func Boot() (*System, error) {
 
 	system := actor.NewActorSystem()
 
-	provider, err := bbolt.NewProvider(3)
+	log.Info().
+		Str("actor", "/").
+		Msg("start remote server...")
+
+	log.Info().
+		Str("actor", "/").
+		Msg("remote server started")
+
+	provider, err := bbolt.NewProvider(system, "my-db", 3)
 	if err != nil {
 		return nil, err
 	}
 
 	rootContext := system.
 		Root.
-		WithGuardian(actor.DefaultSupervisorStrategy()).
+		WithGuardian(actor.RestartingSupervisorStrategy()).
 		WithSpawnMiddleware(
 			propagator.New().
 				WithItselfForwarded().
@@ -76,7 +84,7 @@ func Boot() (*System, error) {
 				).
 				SpawnMiddleware)
 
-	props := actor.PropsFromProducer(core.New())
+	props := actor.PropsFromProducer(core.New()).WithSupervisor(actor.RestartingSupervisorStrategy())
 
 	pid, err := rootContext.SpawnNamed(props, "init")
 	if err != nil {
