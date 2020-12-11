@@ -60,11 +60,8 @@ func Boot() (*System, error) {
 
 	log.Info().
 		Str("actor", "/").
-		Msg("start remote server...")
-
-	log.Info().
-		Str("actor", "/").
-		Msg("remote server started")
+		Str("registryAddress", system.ProcessRegistry.Address).
+		Msg("system started")
 
 	provider, err := bbolt.NewProvider(system, "my-db", 3)
 	if err != nil {
