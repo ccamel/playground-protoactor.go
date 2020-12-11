@@ -41,11 +41,13 @@ func (state *Actor) Receive(context actor.Context) {
 
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to create book")
+
 			return
 		}
 
 		if res.(*booklend.CommandStatus).Code != code.Code_OK {
 			log.Warn().Interface("event", res).Msgf("error")
+
 			return
 		}
 
@@ -60,11 +62,13 @@ func (state *Actor) Receive(context actor.Context) {
 
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to lend book")
+
 			return
 		}
 
 		if res.(*booklend.CommandStatus).Code != code.Code_OK {
 			log.Warn().Interface("event", res).Msgf("error")
+
 			return
 		}
 
@@ -77,11 +81,13 @@ func (state *Actor) Receive(context actor.Context) {
 
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to return book")
+
 			return
 		}
 
 		if res.(*booklend.CommandStatus).Code != code.Code_OK {
 			log.Warn().Interface("event", res).Msgf("error")
+
 			return
 		}
 

@@ -214,6 +214,7 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 	}()
 	if err != nil { // TODO: use panic instead
 		log.Error().Err(err).Msg("Failed to create entity event")
+
 		return
 	}
 
@@ -251,6 +252,7 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 
 	if err != nil { // TODO: use panic instead
 		log.Error().Err(err).Interface("entity", entity).Msg("Failed to persist event")
+
 		return
 	}
 
@@ -268,6 +270,7 @@ func (provider *ProviderState) publish(event *persistence.EventRecord) {
 		if sub.predicate(event) {
 			sub.handler(event)
 		}
+
 		return true
 	})
 }
