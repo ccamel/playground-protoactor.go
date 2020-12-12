@@ -20,6 +20,7 @@ import (
 )
 
 type LogAware interface {
+	Logger() *zerolog.Logger
 	SetLog(logger zerolog.Logger)
 }
 
@@ -29,6 +30,10 @@ type LogAwareHolder struct {
 
 func (state *LogAwareHolder) SetLog(logger zerolog.Logger) {
 	state.Log = logger
+}
+
+func (state *LogAwareHolder) Logger() *zerolog.Logger {
+	return &state.Log
 }
 
 type LogInjectorPlugin struct{}
