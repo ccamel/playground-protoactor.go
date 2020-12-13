@@ -33,7 +33,7 @@ func (a *LoggerActor) Receive(context actor.Context) {
 	case *actor.Stopped:
 	case *actor.Restarting:
 	case *LogMessage:
-		 _, err := a.out.Write(msg.Message)
+		_, err := a.out.Write(msg.Message)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -44,7 +44,7 @@ func New() actor.Producer {
 	return func() actor.Actor {
 		return &LoggerActor{
 			out: zerolog.ConsoleWriter{
-				Out:        os.Stdout,
+				Out: os.Stdout,
 			},
 		}
 	}
