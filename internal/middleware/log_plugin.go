@@ -14,9 +14,11 @@
 package middleware
 
 import (
+	"bytes"
+
 	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/ccamel/playground-protoactor.go/internal/system/log"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 type LogAware interface {
@@ -40,10 +42,35 @@ type LogInjectorPlugin struct{}
 
 func (p *LogInjectorPlugin) OnStart(ctx actor.ReceiverContext) {
 	if p, ok := ctx.Actor().(LogAware); ok {
-		p.SetLog(log.With().
-			Str("pid", ctx.Self().GetId()).
-			Logger())
+		p.SetLog(
+			zerolog.
+				New(&loggerActor{
+					root: ctx.ActorSystem(),
+				}).
+				With().
+				Str("pid", ctx.Self().GetId()).
+				Timestamp().
+				Logger())
 	}
 }
 
 func (p *LogInjectorPlugin) OnOtherMessage(_ actor.ReceiverContext, _ *actor.MessageEnvelope) {}
+
+type loggerActor struct {
+	root *actor.ActorSystem
+	buf  bytes.Buffer
+}
+
+func (l *loggerActor) Write(p []byte) (n int, err error) {
+	for _, b := range p {
+		if b != '\n' {
+			l.buf.WriteByte(b)
+		} else {
+			pid := l.root.NewLocalPID("init/sys/logger")
+			l.root.Root.Send(pid, &log.LogMessage{Message: l.buf.Bytes()})
+			l.buf.Reset()
+		}
+	}
+
+	return len(p), nil
+}
