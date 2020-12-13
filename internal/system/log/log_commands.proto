@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package log;
+
+message LogMessage {
+    bytes message = 1;
+}
