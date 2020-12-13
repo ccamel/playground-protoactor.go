@@ -48,7 +48,13 @@ func LifecycleLogger() actor.ReceiverMiddleware {
 			if accepted {
 				t := strings.TrimLeft(fmt.Sprintf("%T", env.Message), "*")
 				s := strings.ToLower(t[strings.LastIndex(t, ".")+1:])
-				log.Info().
+
+				logger := log.Info()
+				if a, ok := context.Actor().(LogAware); ok {
+					logger = a.Logger().Info()
+				}
+
+				logger.
 					Stringer("actor", context.Self()).
 					Str("state", t).
 					Msgf("actor <%s> %s", context.Self().Id, s)

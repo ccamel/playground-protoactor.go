@@ -11,28 +11,41 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package sys
+package log
 
 import (
+	"fmt"
+	"io"
+	"os"
+
 	"github.com/AsynkronIT/protoactor-go/actor"
-	"github.com/ccamel/playground-protoactor.go/internal/system/log"
+	"github.com/rs/zerolog"
 )
 
-type Actor struct {
+type LoggerActor struct {
+	out io.Writer
 }
 
-func (a *Actor) Receive(context actor.Context) {
-	switch context.Message().(type) {
+func (a *LoggerActor) Receive(context actor.Context) {
+	switch msg := context.Message().(type) {
 	case *actor.Started:
-		_, _ = context.SpawnNamed(actor.PropsFromProducer(log.New()), "logger")
 	case *actor.Stopping:
 	case *actor.Stopped:
 	case *actor.Restarting:
+	case *LogMessage:
+		_, err := a.out.Write(msg.Message)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 
 func New() actor.Producer {
 	return func() actor.Actor {
-		return &Actor{}
+		return &LoggerActor{
+			out: zerolog.ConsoleWriter{
+				Out: os.Stdout,
+			},
+		}
 	}
 }
