@@ -25,6 +25,12 @@ thanks: tools
 build:
 	go build -o playground-protoactor .
 
+docker:
+	@echo "📦 building container"
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o playground-protoactor.amd64 .
+	docker build .
+
+
 $(GOPATH)/bin/gothanks:
 	@echo "📦 installing $(notdir $@)"
 	go get -u github.com/psampaz/gothanks
