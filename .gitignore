@@ -26,8 +26,9 @@ static/*.go
 
 vendor/
 
-# Generated executable
+# Generated executables
 playground-protoactor
+playground-protoactor.amd64
 
 # ouput directories
 build/
