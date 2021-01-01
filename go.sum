@@ -19,6 +19,8 @@ github.com/AsynkronIT/protoactor-go v0.0.0-20201213082334-a510d3428206 h1:otCG0x
 github.com/AsynkronIT/protoactor-go v0.0.0-20201213082334-a510d3428206/go.mod h1:d/mmJA/N2WHh1nOhFkA8YmOQmsXo/VY3sUD2362NLB4=
 github.com/AsynkronIT/protoactor-go v0.0.0-20201227131448-f970f2ca7e91 h1:omd5iLz6RjGJCKdxQUwIrnNab0G53oZnrX+bPRKoGa8=
 github.com/AsynkronIT/protoactor-go v0.0.0-20201227131448-f970f2ca7e91/go.mod h1:3bw2glYiCods3CX/AGVykMFABcOZtZNqFB52V5LNNAI=
+github.com/AsynkronIT/protoactor-go v0.0.0-20210101151327-4fccf9938049 h1:1L00jsq4RhLvs4AwiZk1hnrocb0pBsvnBqY92a91iRg=
+github.com/AsynkronIT/protoactor-go v0.0.0-20210101151327-4fccf9938049/go.mod h1:3bw2glYiCods3CX/AGVykMFABcOZtZNqFB52V5LNNAI=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
