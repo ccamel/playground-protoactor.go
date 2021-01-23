@@ -279,7 +279,7 @@ func (provider *ProviderState) Subscribe(pid *actor.PID, last *string, predicate
 	flag := atomic.NewBool(false)
 	buffer := make([]interface{}, 0, 64)
 
-	subscriptionID := uuid.New().String()
+	subscriptionID := uuid.NewString()
 	provider.subscribers.Store(
 		subscriptionID,
 		subscription{
