@@ -4,7 +4,6 @@ go 1.14
 
 require (
 	github.com/AsynkronIT/protoactor-go v0.0.0-20210104230532-90c8f2d201d8
-	github.com/Workiva/go-datastructures v1.0.52 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.4.3
@@ -24,7 +23,6 @@ require (
 	github.com/vrecan/death v0.0.0-20200705210906-920f972a884a
 	go.etcd.io/bbolt v1.3.5
 	go.uber.org/atomic v1.7.0
-	golang.org/x/text v0.3.3 // indirect
 	google.golang.org/genproto v0.0.0-20201214200347-8c77b98c765d
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/ini.v1 v1.57.0 // indirect
