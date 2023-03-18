@@ -21,7 +21,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/vrecan/death v0.0.0-20200705210906-920f972a884a
-	go.etcd.io/bbolt v1.3.5
+	go.etcd.io/bbolt v1.3.7
 	go.uber.org/atomic v1.7.0
 	google.golang.org/genproto v0.0.0-20201214200347-8c77b98c765d
 	google.golang.org/protobuf v1.25.0
