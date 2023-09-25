@@ -13,7 +13,7 @@ require (
 	github.com/oklog/ulid/v2 v2.0.2
 	github.com/orcaman/concurrent-map v0.0.0-20190826125027-8c72a8bb44f6 // indirect
 	github.com/pelletier/go-toml v1.8.0 // indirect
-	github.com/rs/zerolog v1.21.0
+	github.com/rs/zerolog v1.31.0
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/afero v1.3.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
