@@ -1,27 +1,99 @@
 run:
-  concurrency: 12
-  deadline: 120s
-  issues-exit-code: 1
-  tests: false
-
-output:
-  format: colored-line-number
-  print-issued-lines: true
-  print-linter-name: true
-
-linters-settings:
-  funlen:
-    lines: 76
+  timeout: 10m
 
 linters:
-  enable-all: true
-  disable:
-    - lll
-    - gomnd
-    - godox
+  disable-all: true
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - contextcheck
+    - cyclop
+    - dupl
+    - durationcheck
+    - errname
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - funlen
+    - forbidigo
     - gci
-    - gofumpt
-    - exhaustivestruct
-    - wrapcheck
-  fast: false
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - goimports
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - lll
+    - makezero
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - noctx
+    - nolintlint
+    - prealloc
+    - predeclared
+    - promlinter
+    - revive
+    - stylecheck
+    - tenv
+    - tparallel
+    - unconvert
+    - unparam
+    - whitespace
 
+linters-settings:
+  gci:
+    sections:
+      - standard
+      - default
+      - blank
+      - dot
+      - prefix(github.com/ccamel/playground-protoactor.go)
+    custom-order: true
+  cyclop:
+    max-complexity: 20
+    skip-tests: true
+  funlen:
+    statements: 60
+    lines: 70
+  godot:
+    scope: declarations
+  lll:
+    line-length: 140
+output:
+  uniq-by-line: false
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-rules:
+    - source: "^//\\s*go:generate\\s"
+      linters:
+        - lll
+    - source: "(noinspection|TODO)"
+      linters:
+        - godot
+    - source: "//noinspection"
+      linters:
+        - gocritic
+    - path: "_test\\.go"
+      linters:
+        - bodyclose
+        - dupl
+        - funlen
+        - goconst
+        - noctx
+        - unused
+        - wrapcheck
