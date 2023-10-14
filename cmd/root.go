@@ -4,13 +4,14 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
 //nolint:gochecknoglobals,gochecknoinits // common pattern when using cobra library
 package cmd
 
@@ -18,11 +19,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mitchellh/go-homedir"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
@@ -32,7 +32,8 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "playground-protoactor.go",
 	Short: "Playground for playing with protoactor (the next gen Actor Model framework)",
-	Long:  `Playground for playing with protoactor (the next gen Actor Model framework) in go, following DDD, Event Sourcing & CQRS paradigms.`,
+	Long: `Playground for playing with protoactor (the next gen Actor Model framework) in go, 
+	following DDD, Event Sourcing & CQRS paradigms.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr}).Level(zerolog.DebugLevel)
 	},
@@ -42,7 +43,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Println(err) //nolint:forbidigo // common pattern when using cobra library
 		os.Exit(1)
 	}
 }
@@ -61,7 +62,7 @@ func initConfig() {
 	} else {
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(err) //nolint:forbidigo // common pattern when using cobra library
 			os.Exit(1)
 		}
 
@@ -72,6 +73,6 @@ func initConfig() {
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		fmt.Println("Using config file:", viper.ConfigFileUsed()) //nolint:forbidigo // common pattern when using cobra library
 	}
 }

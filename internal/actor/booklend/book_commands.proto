@@ -7,25 +7,25 @@ import "google/protobuf/timestamp.proto";
 import "github.com/googleapis/googleapis@v0.0.0-20200228213337-83c6f84035ee/google/rpc/code.proto";
 
 message RegisterBook {
-    string bookId = 1;
-    string title = 2;
-    string isbn = 3;
+  string bookId = 1;
+  string title = 2;
+  string isbn = 3;
 }
 
 message LendBook {
-    string bookId = 1;
-    string borrower = 2;
-    google.protobuf.Timestamp date = 3;
-    google.protobuf.Duration expectedDuration = 4;
+  string bookId = 1;
+  string borrower = 2;
+  google.protobuf.Timestamp date = 3;
+  google.protobuf.Duration expectedDuration = 4;
 }
 
 message ReturnBook {
-    string bookId = 1;
-    google.protobuf.Timestamp date = 3;
+  string bookId = 1;
+  google.protobuf.Timestamp date = 3;
 }
 
 message CommandStatus {
-    google.rpc.Code code = 1;
+  google.rpc.Code code = 1;
 
-    string message = 2;
+  string message = 2;
 }

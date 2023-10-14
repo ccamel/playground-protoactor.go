@@ -3,9 +3,9 @@ syntax = "proto3";
 package bbolt;
 
 message SomethingHappened {
-    string message = 1;
+  string message = 1;
 }
 
 message SomethingElseHappened {
-    uint64 value = 1;
+  uint64 value = 1;
 }

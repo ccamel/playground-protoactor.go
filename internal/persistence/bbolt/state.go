@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,8 +23,6 @@ import (
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	p "github.com/AsynkronIT/protoactor-go/persistence"
-	"github.com/ccamel/playground-protoactor.go/internal/persistence"
-	"github.com/ccamel/playground-protoactor.go/internal/util"
 	"github.com/golang/protobuf/proto"  //nolint:staticcheck // use same version than protoactor library
 	"github.com/golang/protobuf/ptypes" //nolint:staticcheck // use same version than protoactor library
 	"github.com/google/uuid"
@@ -32,6 +30,9 @@ import (
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
 	"go.uber.org/atomic"
+
+	"github.com/ccamel/playground-protoactor.go/internal/persistence"
+	"github.com/ccamel/playground-protoactor.go/internal/util"
 )
 
 var (
@@ -173,12 +174,12 @@ func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, 
 			(!(bytes.Compare(k, util.Itob(int64(eventIndexEnd))) <= 0) || (eventIndexEnd == 0)); k, v = c.Next() {
 			buf := provider.eventsBucket(tx).Get(v)
 
-			any, err := unmarshallPayload(buf)
+			i, err := unmarshallPayload(buf)
 			if err != nil {
 				return err
 			}
 
-			callback(any)
+			callback(i)
 		}
 
 		return nil
@@ -338,7 +339,7 @@ func (provider *ProviderState) Subscribe(pid *actor.PID, last *string, predicate
 	return persistence.SubscriptionID(subscriptionID)
 }
 
-func (provider *ProviderState) Unsubscribe(subscriptionID persistence.SubscriptionID) {
+func (provider *ProviderState) Unsubscribe(_ persistence.SubscriptionID) {
 
 }
 
@@ -346,11 +347,11 @@ func (provider *ProviderState) Close() error {
 	return provider.db.Close()
 }
 
-func (provider *ProviderState) DeleteEvents(actorName string, inclusiveToIndex int) {
+func (provider *ProviderState) DeleteEvents(_ string, _ int) {
 	// TODO: implement me!
 }
 
-func (provider *ProviderState) DeleteSnapshots(actorName string, inclusiveToIndex int) {
+func (provider *ProviderState) DeleteSnapshots(_ string, _ int) {
 	// TODO: implement me!
 }
 

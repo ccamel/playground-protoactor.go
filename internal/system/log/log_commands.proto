@@ -3,5 +3,5 @@ syntax = "proto3";
 package log;
 
 message LogMessage {
-    bytes message = 1;
+  bytes message = 1;
 }

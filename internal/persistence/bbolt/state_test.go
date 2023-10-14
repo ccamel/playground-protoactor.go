@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,23 +16,21 @@ package bbolt
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
 
 	"github.com/gogo/protobuf/proto"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestNewProvider(t *testing.T) {
 	Convey("Under temporary directory", t, func(c C) {
-
-		dir, err := ioutil.TempDir("", "test-db-")
+		dir, err := os.MkdirTemp("", "test-db-")
 		So(err, ShouldBeNil)
 
 		Convey("Given a NewProvider", func() {
-
 			p, err := NewProvider(nil, path.Join(dir, "event-store.bolt.db"), 5)
 
 			So(err, ShouldBeNil)
@@ -76,14 +74,15 @@ func TestNewProvider(t *testing.T) {
 			})
 
 			Reset(func() {
-				json.NewEncoder(os.Stderr).Encode(p.GetState().(*ProviderState).db.Stats())
-				err := p.GetState().(*ProviderState).Close()
+				err := json.NewEncoder(os.Stderr).Encode(p.GetState().(*ProviderState).db.Stats())
+				So(err, ShouldBeNil)
+
+				err = p.GetState().(*ProviderState).Close()
 				So(err, ShouldBeNil)
 
 				err = os.RemoveAll(dir)
 				So(err, ShouldBeNil)
 			})
 		})
-
 	})
 }

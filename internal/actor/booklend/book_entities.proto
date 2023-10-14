@@ -6,10 +6,10 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
 message BookEntity {
-    string id = 1;
-    string title = 2;
-    string isbn = 3;
-    string borrower = 4;
-    google.protobuf.Timestamp date = 5;
-    google.protobuf.Duration expectedDuration = 6;
+  string id = 1;
+  string title = 2;
+  string isbn = 3;
+  string borrower = 4;
+  google.protobuf.Timestamp date = 5;
+  google.protobuf.Duration expectedDuration = 6;
 }

@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,9 @@ import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 )
 
-func OptionalUsing(one actor.ReceiverMiddleware, predicate func(ctx actor.ReceiverContext, env *actor.MessageEnvelope) bool) func(next actor.ReceiverFunc) actor.ReceiverFunc {
+func OptionalUsing(
+	one actor.ReceiverMiddleware,
+	predicate func(ctx actor.ReceiverContext, env *actor.MessageEnvelope) bool) func(next actor.ReceiverFunc) actor.ReceiverFunc {
 	return func(two actor.ReceiverFunc) actor.ReceiverFunc {
 		fn := func(ctx actor.ReceiverContext, env *actor.MessageEnvelope) {
 			if predicate(ctx, env) {
