@@ -1,5 +1,17 @@
+# Build stage
+FROM golang:1.20.10 as builder
+
+WORKDIR /go/src/github.com/ccamel/playground-protoactor.go
+
+COPY . .
+
+RUN make build
+
+# Run stage
 FROM scratch
 
-ADD playground-protoactor.amd64 playground-protoactor
+WORKDIR /root/
+
+COPY --from=builder /go/src/github.com/ccamel/playground-protoactor.go/playground-protoactor .
 
 ENTRYPOINT ["./playground-protoactor"]

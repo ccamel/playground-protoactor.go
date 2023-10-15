@@ -1,2 +1,4 @@
-*
-!playground-protoactor.amd64
+build/
+dist/
+bin/
+.idea/
