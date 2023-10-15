@@ -35,9 +35,7 @@ import (
 	"github.com/ccamel/playground-protoactor.go/internal/util"
 )
 
-var (
-	ErrNotFound = fmt.Errorf("not found")
-)
+var ErrNotFound = fmt.Errorf("not found")
 
 type subscription struct {
 	actor     *actor.PID
@@ -56,7 +54,7 @@ type ProviderState struct {
 }
 
 func NewProvider(system *actor.ActorSystem, path string, snapshotInterval int) (p.Provider, error) {
-	db, err := bolt.Open(path, 0666, nil)
+	db, err := bolt.Open(path, 0o666, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -340,7 +338,6 @@ func (provider *ProviderState) Subscribe(pid *actor.PID, last *string, predicate
 }
 
 func (provider *ProviderState) Unsubscribe(_ persistence.SubscriptionID) {
-
 }
 
 func (provider *ProviderState) Close() error {

@@ -20,8 +20,7 @@ import (
 	"github.com/ccamel/playground-protoactor.go/internal/system/core/usr"
 )
 
-type Actor struct {
-}
+type Actor struct{}
 
 func (a *Actor) Receive(context actor.Context) {
 	switch context.Message().(type) {

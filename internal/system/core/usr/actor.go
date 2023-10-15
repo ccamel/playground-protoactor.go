@@ -24,8 +24,7 @@ import (
 	"github.com/ccamel/playground-protoactor.go/internal/actor/booklend"
 )
 
-type Actor struct {
-}
+type Actor struct{}
 
 func (state *Actor) Receive(context actor.Context) {
 	switch context.Message().(type) {
@@ -39,7 +38,6 @@ func (state *Actor) Receive(context actor.Context) {
 			Title:  "The Lord of the Rings",
 			Isbn:   "0-618-15396-9",
 		}, 5*time.Second).Result()
-
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to create book")
 
