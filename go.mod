@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/AsynkronIT/protoactor-go v0.0.0-20210104230532-90c8f2d201d8
 	github.com/gogo/protobuf v1.3.1
-	github.com/golang/protobuf v1.4.3
+	github.com/golang/protobuf v1.5.0
 	github.com/google/uuid v1.3.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/oklog/ulid/v2 v2.0.2
@@ -17,7 +17,7 @@ require (
 	go.etcd.io/bbolt v1.3.5
 	go.uber.org/atomic v1.11.0
 	google.golang.org/genproto v0.0.0-20201214200347-8c77b98c765d
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.31.0
 )
 
 require (
