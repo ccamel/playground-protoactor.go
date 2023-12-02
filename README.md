@@ -35,3 +35,37 @@ This project aims to:
 - Explore persistence options for actors, including in-memory and disk-based storage, possibly using existing database systems (e.g., [PostgreSQL](https://www.postgresql.org/), [CockroachDB](https://www.cockroachlabs.com/), [MongoDB](https://www.mongodb.com/), etc.).
 - Build and demonstrate a sample application to showcase the practical application of these concepts in Go.
 - etc.
+
+## Architecture
+
+### Actor Model
+
+An actor is a highly intelligent abstraction that provides a simplified approach to constructing complex concurrent systems. It is a protected state with only a reference available for communication through message exchanges.
+
+Messages sent to an actor are placed in the actor's mailbox. When the actor is ready, it will consume the message. The consumption of a message can lead to:
+
+- A change in state,
+- Responding to the sender (who is also an actor) with another message,
+- Altering the actor's behavior.
+- Actors exist within an actor system - a hierarchical structure, akin to a tree. There will only be one actor with a given name/identifier throughout the entire actor system.
+
+### Event Sourcing
+
+Event Sourcing involves integrating its principles into the actor system, treating each message sent to an actor as a command. While an actor can handle all states of the domain, it's more relevant to consider a separate actor, known as an aggregate, responsible for managing the state of a domain identifier. This aggregate actor is an event-sourced actor, also referred to as a persistent actor.
+
+In this context, events are generated from the command, representing the effect of the command. These events are then persisted. After successful persistence, they are used to change the actor’s state. The aggregate, therefore, manages the state of a domain identifier, responds to commands, and generates events. These events are sent to the actor who issued the command, and the state's persistence is achieved by consuming the Event Stream of the aggregate for the specified identifier.
+
+``` mermaid
+flowchart LR
+    O(["actor X"])
+    A(["init/usr/book_lend"])
+    B(["init/usr/book_lend/_id"])
+
+    es[(Event\nStore)]
+
+    O --> | RegisterBook _id | A
+    A -.-> | spawn _id | B
+    B --> | restore state | B
+    A --> | RegisterBook _id | B
+    es -.-> | event stream | B
+```
