@@ -17,9 +17,10 @@ import (
 	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/genproto/googleapis/rpc/code"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/ccamel/playground-protoactor.go/internal/actor/booklend"
 	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
@@ -56,8 +57,8 @@ func (state *Actor) Receive(context actor.Context) {
 		res, err = context.RequestFuture(pid, &booklendv1.LendBook{
 			BookId:           bookID,
 			Borrower:         "John Doe",
-			Date:             ptypes.TimestampNow(),
-			ExpectedDuration: ptypes.DurationProto(90 * 24 * time.Hour),
+			Date:             timestamppb.Now(),
+			ExpectedDuration: durationpb.New(90 * 24 * time.Hour),
 		}, 5*time.Second).Result()
 
 		if err != nil {
@@ -76,7 +77,7 @@ func (state *Actor) Receive(context actor.Context) {
 
 		res, err = context.RequestFuture(pid, &booklendv1.ReturnBook{
 			BookId: bookID,
-			Date:   ptypes.TimestampNow(),
+			Date:   timestamppb.Now(),
 		}, 5*time.Second).Result()
 
 		if err != nil {

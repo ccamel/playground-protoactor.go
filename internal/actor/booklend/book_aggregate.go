@@ -21,6 +21,8 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/genproto/googleapis/rpc/code"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
@@ -71,7 +73,7 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 			},
 			&booklendv1.BookRegistered{
 				Id:        msg.BookId,
-				Timestamp: ptypes.TimestampNow(),
+				Timestamp: timestamppb.Now(),
 				Title:     msg.Title,
 				Isbn:      msg.Isbn,
 			})
@@ -102,7 +104,7 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 			},
 			&booklendv1.BookLent{
 				Id:               msg.BookId,
-				Timestamp:        ptypes.TimestampNow(),
+				Timestamp:        timestamppb.Now(),
 				Borrower:         msg.Borrower,
 				Date:             msg.Date,
 				ExpectedDuration: msg.ExpectedDuration,
@@ -154,10 +156,10 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 			},
 			&booklendv1.BookReturned{
 				Id:           msg.BookId,
-				Timestamp:    ptypes.TimestampNow(),
+				Timestamp:    timestamppb.Now(),
 				By:           a.state.Borrower,
 				Date:         msg.Date,
-				LentDuration: ptypes.DurationProto(t2.Sub(t1)),
+				LentDuration: durationpb.New(t2.Sub(t1)),
 			})
 
 	case *booklendv1.BookRegistered:

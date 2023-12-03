@@ -30,6 +30,7 @@ import (
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
 	"go.uber.org/atomic"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/ccamel/playground-protoactor.go/internal/persistence"
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
@@ -136,7 +137,7 @@ func (provider *ProviderState) PersistSnapshot(actorName string, eventIndex int,
 			Id:               actorName,
 			Type:             payload.TypeUrl,
 			Version:          uint64(eventIndex),
-			StorageTimestamp: ptypes.TimestampNow(),
+			StorageTimestamp: timestamppb.Now(),
 			Payload:          payload,
 		}
 
@@ -208,7 +209,7 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 			Type:             payload.TypeUrl,
 			StreamId:         actorName,
 			Version:          uint64(eventIndex),
-			StorageTimestamp: ptypes.TimestampNow(),
+			StorageTimestamp: timestamppb.Now(),
 			Payload:          payload,
 		}, nil
 	}()
