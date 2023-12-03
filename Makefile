@@ -1,7 +1,8 @@
 .EXPORT_ALL_VARIABLES:
 
 # Docker images
-DOCKER_IMAGE_BUF = bufbuild/buf:1.28.1
+DOCKER_IMAGE_GOLANG	 = golang:1.21-alpine3.17
+DOCKER_IMAGE_BUF     = bufbuild/buf:1.28.1
 
 default: build
 
@@ -40,10 +41,22 @@ lint: lint-proto
 lint-proto:
 	@echo "🖋 Linting proto..."
 	@docker run --rm \
-		-v `pwd`:/proto \
-		-w /proto \
+		-v `pwd`:/work \
+		-w /work \
 		${DOCKER_IMAGE_BUF} \
 		generate --verbose
+
+.PHONY: format
+format: format-go
+
+format-go:
+	@echo "📐 Formatting go source code..."
+	@docker run --rm \
+  		-v `pwd`:/work:rw \
+  		-w /work \
+  		${DOCKER_IMAGE_GOLANG} \
+  		sh -c \
+		"go install mvdan.cc/gofumpt@v0.5.0; gofumpt -w -l ."
 
 .PHONY: docker
 docker:
