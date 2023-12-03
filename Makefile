@@ -3,15 +3,16 @@
 # Docker images
 DOCKER_IMAGE_BUF = bufbuild/buf:1.28.1
 
-.PHONY: tools deps gen-static check build lint lint-proto
-
 default: build
 
+.PHONY: tools
 tools: ./bin/golangci-lint $(GOPATH)/bin/esc $(GOPATH)/bin/gothanks
 
+.PHONY: deps
 deps:
 	go get .
 
+.PHONY: protobuf
 protobuf:
 	@echo "🖋 Generating proto..."
 	@docker run --rm \
@@ -20,17 +21,22 @@ protobuf:
 		${DOCKER_IMAGE_BUF} \
 		generate --verbose
 
+.PHONY: check
 check: tools
 	./bin/golangci-lint run ./...
 
+.PHONY: thanks
 thanks: tools
 	$(GOPATH)/bin/gothanks -y | grep -v "is already"
 
+.PHONY: build
 build:
 	go build -o playground-protoactor .
 
+.PHONY: lint
 lint: lint-proto
 
+.PHONY: lint-proto
 lint-proto:
 	@echo "🖋 Linting proto..."
 	@docker run --rm \
@@ -39,11 +45,11 @@ lint-proto:
 		${DOCKER_IMAGE_BUF} \
 		generate --verbose
 
+.PHONY: docker
 docker:
 	@echo "📦 building container"
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o playground-protoactor.amd64 .
 	docker build .
-
 
 $(GOPATH)/bin/gothanks:
 	@echo "📦 installing $(notdir $@)"
