@@ -1,6 +1,6 @@
 module github.com/ccamel/playground-protoactor.go
 
-go 1.20
+go 1.21
 
 require (
 	github.com/AsynkronIT/protoactor-go v0.0.0-20210104230532-90c8f2d201d8
@@ -24,6 +24,7 @@ require (
 	github.com/Workiva/go-datastructures v1.0.52 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/googleapis/googleapis v0.0.0-20231201212219-2aa3b1d5a90d // indirect
 	github.com/gopherjs/gopherjs v1.12.80 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

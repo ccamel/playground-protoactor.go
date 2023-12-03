@@ -22,12 +22,13 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/genproto/googleapis/rpc/code"
 
-	persistence2 "github.com/ccamel/playground-protoactor.go/internal/persistence"
+	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
+	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 )
 
 type BookAggregate struct {
 	persistence.Mixin
-	state *BookEntity
+	state *booklendv1.BookEntity
 }
 
 func (a *BookAggregate) Receive(context actor.Context) {
@@ -38,12 +39,12 @@ func (a *BookAggregate) Receive(context actor.Context) {
 func (a *BookAggregate) handleMessage(context actor.Context, message interface{}) {
 	switch msg := message.(type) {
 	case *actor.Started:
-		a.state = &BookEntity{}
+		a.state = &booklendv1.BookEntity{}
 	case *actor.ReceiveTimeout:
 		context.Stop(context.Self())
 	case *persistence.RequestSnapshot:
 		a.PersistSnapshot(a.state)
-	case *persistence2.ConsiderSnapshot:
+	case *persistencev1.ConsiderSnapshot:
 		var dynamic ptypes.DynamicAny
 
 		err := ptypes.UnmarshalAny(msg.Payload, &dynamic)
@@ -51,10 +52,10 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 			panic(err)
 		}
 
-		a.state = dynamic.Message.(*BookEntity)
-	case *RegisterBook:
+		a.state = dynamic.Message.(*booklendv1.BookEntity)
+	case *booklendv1.RegisterBook:
 		if a.state.Id != "" {
-			context.Respond(&CommandStatus{
+			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_ALREADY_EXISTS,
 				Message: fmt.Sprintf("book with id %s already exists.", msg.BookId),
 			})
@@ -64,19 +65,19 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 
 		a.applyAndReply(
 			context,
-			&CommandStatus{
+			&booklendv1.CommandStatus{
 				Code:    code.Code_OK,
 				Message: fmt.Sprintf("book registered with id %s", msg.BookId),
 			},
-			&BookRegistered{
+			&booklendv1.BookRegistered{
 				Id:        msg.BookId,
 				Timestamp: ptypes.TimestampNow(),
 				Title:     msg.Title,
 				Isbn:      msg.Isbn,
 			})
-	case *LendBook:
+	case *booklendv1.LendBook:
 		if msg.Borrower == "" {
-			context.Respond(&CommandStatus{
+			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_INVALID_ARGUMENT,
 				Message: fmt.Sprintf("command LendBook for book %s shall specify a borrower.", msg.BookId),
 			})
@@ -85,7 +86,7 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 		}
 
 		if a.state.Borrower != "" {
-			context.Respond(&CommandStatus{
+			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_INVALID_ARGUMENT,
 				Message: fmt.Sprintf("book with id %s is already lent.", msg.BookId),
 			})
@@ -95,20 +96,20 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 
 		a.applyAndReply(
 			context,
-			&CommandStatus{
+			&booklendv1.CommandStatus{
 				Code:    code.Code_OK,
 				Message: fmt.Sprintf("book registered with id %s", msg.BookId),
 			},
-			&BookLent{
+			&booklendv1.BookLent{
 				Id:               msg.BookId,
 				Timestamp:        ptypes.TimestampNow(),
 				Borrower:         msg.Borrower,
 				Date:             msg.Date,
 				ExpectedDuration: msg.ExpectedDuration,
 			})
-	case *ReturnBook:
+	case *booklendv1.ReturnBook:
 		if a.state.Borrower == "" {
-			context.Respond(&CommandStatus{
+			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_INVALID_ARGUMENT,
 				Message: fmt.Sprintf("book with id %s has not been lent.", msg.BookId),
 			})
@@ -118,7 +119,7 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 
 		t2, err := ptypes.Timestamp(msg.Date)
 		if err != nil {
-			context.Respond(&CommandStatus{
+			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_UNKNOWN,
 				Message: fmt.Sprintf("failed to parse date: %s", err.Error()),
 			})
@@ -128,7 +129,7 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 
 		t1, err := ptypes.Timestamp(a.state.Date)
 		if err != nil {
-			context.Respond(&CommandStatus{
+			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_UNKNOWN,
 				Message: fmt.Sprintf("failed to parse date: %s", err.Error()),
 			})
@@ -137,7 +138,7 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 		}
 
 		if t2.Before(t1) {
-			context.Respond(&CommandStatus{
+			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_INVALID_ARGUMENT,
 				Message: fmt.Sprintf("book with id %s cannot be returned before being lent", msg.BookId),
 			})
@@ -147,11 +148,11 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 
 		a.applyAndReply(
 			context,
-			&CommandStatus{
+			&booklendv1.CommandStatus{
 				Code:    code.Code_OK,
 				Message: fmt.Sprintf("book registered with id %s", msg.BookId),
 			},
-			&BookReturned{
+			&booklendv1.BookReturned{
 				Id:           msg.BookId,
 				Timestamp:    ptypes.TimestampNow(),
 				By:           a.state.Borrower,
@@ -159,17 +160,17 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 				LentDuration: ptypes.DurationProto(t2.Sub(t1)),
 			})
 
-	case *BookRegistered:
+	case *booklendv1.BookRegistered:
 		a.state.Id = msg.Id
 		a.state.Isbn = msg.Isbn
 		a.state.Title = msg.Title
 
-	case *BookLent:
+	case *booklendv1.BookLent:
 		a.state.Borrower = msg.Borrower
 		a.state.Date = msg.Date
 		a.state.ExpectedDuration = msg.ExpectedDuration
 
-	case *BookReturned:
+	case *booklendv1.BookReturned:
 		a.state.Borrower = ""
 	}
 }

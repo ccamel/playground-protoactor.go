@@ -19,7 +19,7 @@ import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/rs/zerolog"
 
-	"github.com/ccamel/playground-protoactor.go/internal/system/log"
+	logv1 "github.com/ccamel/playground-protoactor.go/internal/system/log/v1"
 )
 
 type LogAware interface {
@@ -68,7 +68,7 @@ func (l *loggerActor) Write(p []byte) (n int, err error) {
 			l.buf.WriteByte(b)
 		} else {
 			pid := l.root.NewLocalPID("init/sys/logger")
-			l.root.Root.Send(pid, &log.LogMessage{Message: l.buf.Bytes()})
+			l.root.Root.Send(pid, &logv1.LogMessage{Message: l.buf.Bytes()})
 			l.buf.Reset()
 		}
 	}

@@ -23,6 +23,8 @@ import (
 	"github.com/gogo/protobuf/proto"
 
 	. "github.com/smartystreets/goconvey/convey"
+
+	bboltv1 "github.com/ccamel/playground-protoactor.go/internal/persistence/bbolt/v1"
 )
 
 func TestNewProvider(t *testing.T) {
@@ -43,9 +45,9 @@ func TestNewProvider(t *testing.T) {
 
 				for i := 0; i < nbEvents; i++ {
 					if i%2 == 0 {
-						events[i] = &SomethingHappened{Message: fmt.Sprintf("This is message %d", i)}
+						events[i] = &bboltv1.SomethingHappened{Message: fmt.Sprintf("This is message %d", i)}
 					} else {
-						events[i] = &SomethingElseHappened{Value: uint64(i)}
+						events[i] = &bboltv1.SomethingElseHappened{Value: uint64(i)}
 					}
 				}
 
@@ -58,11 +60,11 @@ func TestNewProvider(t *testing.T) {
 						count := version
 						p.GetState().GetEvents("test", version, 0, func(event interface{}) {
 							if count%2 == 0 {
-								So(event, ShouldHaveSameTypeAs, &SomethingHappened{})
-								So(event.(*SomethingHappened).Message, ShouldEqual, events[count].(*SomethingHappened).Message)
+								So(event, ShouldHaveSameTypeAs, &bboltv1.SomethingHappened{})
+								So(event.(*bboltv1.SomethingHappened).Message, ShouldEqual, events[count].(*bboltv1.SomethingHappened).Message)
 							} else {
-								So(event, ShouldHaveSameTypeAs, &SomethingElseHappened{})
-								So(event.(*SomethingElseHappened).Value, ShouldEqual, events[count].(*SomethingElseHappened).Value)
+								So(event, ShouldHaveSameTypeAs, &bboltv1.SomethingElseHappened{})
+								So(event.(*bboltv1.SomethingElseHappened).Value, ShouldEqual, events[count].(*bboltv1.SomethingElseHappened).Value)
 							}
 
 							count++

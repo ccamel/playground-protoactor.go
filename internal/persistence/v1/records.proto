@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package persistence;
+package persistence.v1;
 
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
@@ -9,7 +9,7 @@ message SnapshotRecord {
   string id = 1;
   string type = 2;
   uint64 version = 3;
-  google.protobuf.Timestamp storageTimestamp = 4;
+  google.protobuf.Timestamp storage_timestamp = 4;
 
   map<string, string> metadata = 5;
   google.protobuf.Any payload = 6;
@@ -18,11 +18,11 @@ message SnapshotRecord {
 message EventRecord {
   string id = 1;
   string type = 2;
-  string streamId = 3;
+  string stream_id = 3;
   uint64 version = 4;
-  uint64 sequenceNumber = 5;
+  uint64 sequence_number = 5;
   repeated string tags = 6;
-  google.protobuf.Timestamp storageTimestamp = 7;
+  google.protobuf.Timestamp storage_timestamp = 7;
 
   map<string, string> metadata = 8;
   google.protobuf.Any payload = 9;

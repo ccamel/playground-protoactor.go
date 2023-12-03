@@ -1,35 +1,68 @@
 .EXPORT_ALL_VARIABLES:
 
-.PHONY: tools deps gen-static check build
+# Docker images
+DOCKER_IMAGE_GOLANG	 = golang:1.21-alpine3.17
+DOCKER_IMAGE_BUF     = bufbuild/buf:1.28.1
 
 default: build
 
+.PHONY: tools
 tools: ./bin/golangci-lint $(GOPATH)/bin/esc $(GOPATH)/bin/gothanks
-protos=$(addsuffix .pb.go,$(basename $(shell find . -maxdepth 5 -type f -name *.proto)))
 
-%.pb.go: %.proto
-	@echo "🖋 Generating proto $(notdir $<)"
-	protoc -I=$(dir $@) -I=$(GOPATH)/src -I=$(GOPATH)/pkg/mod --go_out=$(dir $@) $(notdir $<)
-
+.PHONY: deps
 deps:
 	go get .
 
-protobuf: $(protos)
+.PHONY: protobuf
+protobuf:
+	@echo "🖋 Generating proto..."
+	@docker run --rm \
+		-v `pwd`:/proto \
+		-w /proto \
+		${DOCKER_IMAGE_BUF} \
+		generate --verbose
 
+.PHONY: check
 check: tools
 	./bin/golangci-lint run ./...
 
+.PHONY: thanks
 thanks: tools
 	$(GOPATH)/bin/gothanks -y | grep -v "is already"
 
+.PHONY: build
 build:
 	go build -o playground-protoactor .
 
+.PHONY: lint
+lint: lint-proto
+
+.PHONY: lint-proto
+lint-proto:
+	@echo "🖋 Linting proto..."
+	@docker run --rm \
+		-v `pwd`:/work \
+		-w /work \
+		${DOCKER_IMAGE_BUF} \
+		generate --verbose
+
+.PHONY: format
+format: format-go
+
+format-go:
+	@echo "📐 Formatting go source code..."
+	@docker run --rm \
+  		-v `pwd`:/work:rw \
+  		-w /work \
+  		${DOCKER_IMAGE_GOLANG} \
+  		sh -c \
+		"go install mvdan.cc/gofumpt@v0.5.0; gofumpt -w -l ."
+
+.PHONY: docker
 docker:
 	@echo "📦 building container"
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o playground-protoactor.amd64 .
 	docker build .
-
 
 $(GOPATH)/bin/gothanks:
 	@echo "📦 installing $(notdir $@)"

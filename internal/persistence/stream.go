@@ -15,9 +15,11 @@ package persistence
 
 import (
 	"github.com/AsynkronIT/protoactor-go/actor"
+
+	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 )
 
-type EventPredicate func(event *EventRecord) bool
+type EventPredicate func(event *persistencev1.EventRecord) bool
 
 type SubscriptionID string
 
