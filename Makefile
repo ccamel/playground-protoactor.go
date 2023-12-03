@@ -3,7 +3,7 @@
 # Docker images
 DOCKER_IMAGE_BUF = bufbuild/buf:1.28.1
 
-.PHONY: tools deps gen-static check build
+.PHONY: tools deps gen-static check build lint lint-proto
 
 default: build
 
@@ -18,7 +18,7 @@ protobuf:
 		-v `pwd`:/proto \
 		-w /proto \
 		${DOCKER_IMAGE_BUF} \
-		build --verbose
+		generate --verbose
 
 check: tools
 	./bin/golangci-lint run ./...
@@ -28,6 +28,16 @@ thanks: tools
 
 build:
 	go build -o playground-protoactor .
+
+lint: lint-proto
+
+lint-proto:
+	@echo "🖋 Linting proto..."
+	@docker run --rm \
+		-v `pwd`:/proto \
+		-w /proto \
+		${DOCKER_IMAGE_BUF} \
+		generate --verbose
 
 docker:
 	@echo "📦 building container"
