@@ -23,6 +23,7 @@ import (
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	p "github.com/AsynkronIT/protoactor-go/persistence"
+	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 	"github.com/golang/protobuf/proto"  //nolint:staticcheck // use same version than protoactor library
 	"github.com/golang/protobuf/ptypes" //nolint:staticcheck // use same version than protoactor library
 	"github.com/google/uuid"
@@ -107,13 +108,13 @@ func (provider *ProviderState) GetSnapshot(actorName string) (interface{}, int, 
 			return fmt.Errorf("snapshot %d not found: %w", eventIndex, ErrNotFound)
 		}
 
-		var record persistence.SnapshotRecord
+		var record persistencev1.SnapshotRecord
 		err := proto.Unmarshal(buf, &record)
 		if err != nil {
 			return err
 		}
 
-		message = &persistence.ConsiderSnapshot{
+		message = &persistencev1.ConsiderSnapshot{
 			Payload: record.Payload,
 		}
 		eventIndex = int(record.Version)
@@ -131,7 +132,7 @@ func (provider *ProviderState) PersistSnapshot(actorName string, eventIndex int,
 			return err
 		}
 
-		entity := &persistence.SnapshotRecord{
+		entity := &persistencev1.SnapshotRecord{
 			Id:               actorName,
 			Type:             payload.TypeUrl,
 			Version:          uint64(eventIndex),
@@ -188,7 +189,7 @@ func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, 
 }
 
 func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, event proto.Message) {
-	id, entity, err := func() (ulid.ULID, *persistence.EventRecord, error) {
+	id, entity, err := func() (ulid.ULID, *persistencev1.EventRecord, error) {
 		provider.muID.Lock()
 		id, err := ulid.New(ulid.Timestamp(time.Now()), provider.entropy)
 		provider.muID.Unlock()
@@ -202,7 +203,7 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 			return id, nil, err
 		}
 
-		return id, &persistence.EventRecord{
+		return id, &persistencev1.EventRecord{
 			Id:               id.String(),
 			Type:             payload.TypeUrl,
 			StreamId:         actorName,
@@ -260,7 +261,7 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 	log.Info().Interface("entity", entity).Msg("Event saved")
 }
 
-func (provider *ProviderState) publish(event *persistence.EventRecord) {
+func (provider *ProviderState) publish(event *persistencev1.EventRecord) {
 	provider.muPublish.Lock()
 	defer provider.muPublish.Unlock()
 
@@ -322,7 +323,7 @@ func (provider *ProviderState) Subscribe(pid *actor.PID, last *string, predicate
 					return err
 				}
 
-				if predicate(evt.(*persistence.EventRecord)) {
+				if predicate(evt.(*persistencev1.EventRecord)) {
 					provider.system.Root.Send(pid, evt)
 				}
 			}
@@ -363,7 +364,7 @@ func (provider *ProviderState) snapshotsBucket(tx *bolt.Tx) *bolt.Bucket {
 }
 
 func unmarshallPayload(buf []byte) (interface{}, error) {
-	var entity persistence.EventRecord
+	var entity persistencev1.EventRecord
 	if err := proto.Unmarshal(buf, &entity); err != nil {
 		return nil, err
 	}

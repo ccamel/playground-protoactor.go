@@ -19,6 +19,7 @@ import (
 	"os"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
+	logv1 "github.com/ccamel/playground-protoactor.go/internal/system/log/v1"
 	"github.com/rs/zerolog"
 )
 
@@ -32,7 +33,7 @@ func (a *LoggerActor) Receive(context actor.Context) {
 	case *actor.Stopping:
 	case *actor.Stopped:
 	case *actor.Restarting:
-	case *LogMessage:
+	case *logv1.LogMessage:
 		_, err := a.out.Write(msg.Message)
 		if err != nil {
 			fmt.Println(err) //nolint:forbidigo // common pattern when using cobra library

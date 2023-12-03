@@ -17,6 +17,7 @@ import (
 	"fmt"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
+	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
 	"google.golang.org/genproto/googleapis/rpc/code"
 
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
@@ -28,15 +29,15 @@ type BookService struct {
 
 func (a *BookService) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case *RegisterBook:
+	case *booklendv1.RegisterBook:
 		a.doCommand(context, msg.BookId)
-	case *LendBook:
+	case *booklendv1.LendBook:
 		a.doCommand(context, msg.BookId)
-	case *ReturnBook:
+	case *booklendv1.ReturnBook:
 		a.doCommand(context, msg.BookId)
 	default:
 		if context.Sender() != nil {
-			context.Respond(&CommandStatus{
+			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_INVALID_ARGUMENT,
 				Message: fmt.Sprintf("message %T is not supported", msg),
 			})
@@ -48,7 +49,7 @@ func (a *BookService) Receive(context actor.Context) {
 func (a *BookService) doCommand(context actor.Context, id string) {
 	book, err := getOrSpawn(context, id)
 	if err != nil {
-		context.Respond(&CommandStatus{
+		context.Respond(&booklendv1.CommandStatus{
 			Code:    code.Code_UNKNOWN,
 			Message: err.Error(),
 		})

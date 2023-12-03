@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package booklend;
+package actor.booklend.v1;
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -11,5 +11,5 @@ message BookEntity {
   string isbn = 3;
   string borrower = 4;
   google.protobuf.Timestamp date = 5;
-  google.protobuf.Duration expectedDuration = 6;
+  google.protobuf.Duration expected_duration = 6;
 }

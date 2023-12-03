@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package bbolt;
+package persistence.bbolt.v1;
 option go_package = "github.com/ccamel/playground-protoactor.go/internal/persistence/bbolt";
 
 message SomethingHappened {

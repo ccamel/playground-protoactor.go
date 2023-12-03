@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
+	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/genproto/googleapis/rpc/code"
@@ -33,7 +34,7 @@ func (state *Actor) Receive(context actor.Context) {
 
 		bookID := "207b6be6-a7e4-4cc7-a692-b51e79de0460" // uuid.New().String()
 
-		res, err := context.RequestFuture(pid, &booklend.RegisterBook{
+		res, err := context.RequestFuture(pid, &booklendv1.RegisterBook{
 			BookId: bookID,
 			Title:  "The Lord of the Rings",
 			Isbn:   "0-618-15396-9",
@@ -44,7 +45,7 @@ func (state *Actor) Receive(context actor.Context) {
 			return
 		}
 
-		if res.(*booklend.CommandStatus).Code != code.Code_OK {
+		if res.(*booklendv1.CommandStatus).Code != code.Code_OK {
 			log.Warn().Interface("event", res).Msgf("error")
 
 			return
@@ -52,7 +53,7 @@ func (state *Actor) Receive(context actor.Context) {
 
 		log.Info().Interface("event", res).Msgf("ok")
 
-		res, err = context.RequestFuture(pid, &booklend.LendBook{
+		res, err = context.RequestFuture(pid, &booklendv1.LendBook{
 			BookId:           bookID,
 			Borrower:         "John Doe",
 			Date:             ptypes.TimestampNow(),
@@ -65,7 +66,7 @@ func (state *Actor) Receive(context actor.Context) {
 			return
 		}
 
-		if res.(*booklend.CommandStatus).Code != code.Code_OK {
+		if res.(*booklendv1.CommandStatus).Code != code.Code_OK {
 			log.Warn().Interface("event", res).Msgf("error")
 
 			return
@@ -73,7 +74,7 @@ func (state *Actor) Receive(context actor.Context) {
 
 		log.Info().Interface("event", res).Msgf("ok")
 
-		res, err = context.RequestFuture(pid, &booklend.ReturnBook{
+		res, err = context.RequestFuture(pid, &booklendv1.ReturnBook{
 			BookId: bookID,
 			Date:   ptypes.TimestampNow(),
 		}, 5*time.Second).Result()
@@ -84,7 +85,7 @@ func (state *Actor) Receive(context actor.Context) {
 			return
 		}
 
-		if res.(*booklend.CommandStatus).Code != code.Code_OK {
+		if res.(*booklendv1.CommandStatus).Code != code.Code_OK {
 			log.Warn().Interface("event", res).Msgf("error")
 
 			return
