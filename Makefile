@@ -11,7 +11,7 @@ tools: ./bin/golangci-lint $(GOPATH)/bin/esc $(GOPATH)/bin/gothanks
 
 .PHONY: deps
 deps:
-	go get .
+	go mod download
 
 .PHONY: protobuf
 protobuf:
