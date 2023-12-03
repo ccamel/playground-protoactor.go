@@ -1,6 +1,6 @@
 module github.com/ccamel/playground-protoactor.go
 
-go 1.20
+go 1.21
 
 require (
 	github.com/AsynkronIT/protoactor-go v0.0.0-20210104230532-90c8f2d201d8
