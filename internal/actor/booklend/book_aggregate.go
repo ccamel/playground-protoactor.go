@@ -18,12 +18,12 @@ import (
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/persistence"
-	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
 	"github.com/gogo/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/genproto/googleapis/rpc/code"
 
-	"github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
+	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
+	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 )
 
 type BookAggregate struct {

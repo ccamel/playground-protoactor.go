@@ -23,7 +23,6 @@ import (
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	p "github.com/AsynkronIT/protoactor-go/persistence"
-	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 	"github.com/golang/protobuf/proto"  //nolint:staticcheck // use same version than protoactor library
 	"github.com/golang/protobuf/ptypes" //nolint:staticcheck // use same version than protoactor library
 	"github.com/google/uuid"
@@ -33,6 +32,7 @@ import (
 	"go.uber.org/atomic"
 
 	"github.com/ccamel/playground-protoactor.go/internal/persistence"
+	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 	"github.com/ccamel/playground-protoactor.go/internal/util"
 )
 

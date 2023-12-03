@@ -17,12 +17,12 @@ import (
 	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
-	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/genproto/googleapis/rpc/code"
 
 	"github.com/ccamel/playground-protoactor.go/internal/actor/booklend"
+	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
 )
 
 type Actor struct{}

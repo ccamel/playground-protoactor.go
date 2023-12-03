@@ -20,10 +20,11 @@ import (
 	"path"
 	"testing"
 
-	bboltv1 "github.com/ccamel/playground-protoactor.go/internal/persistence/bbolt/v1"
 	"github.com/gogo/protobuf/proto"
 
 	. "github.com/smartystreets/goconvey/convey"
+
+	bboltv1 "github.com/ccamel/playground-protoactor.go/internal/persistence/bbolt/v1"
 )
 
 func TestNewProvider(t *testing.T) {

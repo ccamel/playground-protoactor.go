@@ -17,9 +17,9 @@ import (
 	"fmt"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
-	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
 	"google.golang.org/genproto/googleapis/rpc/code"
 
+	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
 )
 

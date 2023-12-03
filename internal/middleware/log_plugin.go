@@ -19,7 +19,7 @@ import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/rs/zerolog"
 
-	"github.com/ccamel/playground-protoactor.go/internal/system/log/v1"
+	logv1 "github.com/ccamel/playground-protoactor.go/internal/system/log/v1"
 )
 
 type LogAware interface {
