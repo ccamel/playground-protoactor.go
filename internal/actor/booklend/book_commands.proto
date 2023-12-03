@@ -4,7 +4,7 @@ package booklend;
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "github.com/googleapis/googleapis@v0.0.0-20200228213337-83c6f84035ee/google/rpc/code.proto";
+import "google/rpc/code.proto";
 
 message RegisterBook {
   string bookId = 1;

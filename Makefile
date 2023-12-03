@@ -1,20 +1,24 @@
 .EXPORT_ALL_VARIABLES:
 
+# Docker images
+DOCKER_IMAGE_BUF = bufbuild/buf:1.28.1
+
 .PHONY: tools deps gen-static check build
 
 default: build
 
 tools: ./bin/golangci-lint $(GOPATH)/bin/esc $(GOPATH)/bin/gothanks
-protos=$(addsuffix .pb.go,$(basename $(shell find . -maxdepth 5 -type f -name *.proto)))
-
-%.pb.go: %.proto
-	@echo "🖋 Generating proto $(notdir $<)"
-	protoc -I=$(dir $@) -I=$(GOPATH)/src -I=$(GOPATH)/pkg/mod --go_out=$(dir $@) $(notdir $<)
 
 deps:
 	go get .
 
-protobuf: $(protos)
+protobuf:
+	@echo "🖋 Generating proto..."
+	@docker run --rm \
+		-v `pwd`:/proto \
+		-w /proto \
+		${DOCKER_IMAGE_BUF} \
+		build --verbose
 
 check: tools
 	./bin/golangci-lint run ./...
