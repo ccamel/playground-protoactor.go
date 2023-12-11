@@ -14,7 +14,7 @@
 package sys
 
 import (
-	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/actor"
 
 	"github.com/ccamel/playground-protoactor.go/internal/system/log"
 )

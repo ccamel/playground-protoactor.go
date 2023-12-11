@@ -14,7 +14,7 @@
 package persistence
 
 import (
-	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/actor"
 
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 )

@@ -16,7 +16,7 @@ package booklend
 import (
 	"fmt"
 
-	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/actor"
 	"google.golang.org/genproto/googleapis/rpc/code"
 
 	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"

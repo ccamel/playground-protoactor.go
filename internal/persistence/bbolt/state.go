@@ -21,15 +21,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AsynkronIT/protoactor-go/actor"
-	p "github.com/AsynkronIT/protoactor-go/persistence"
-	"github.com/golang/protobuf/proto"  //nolint:staticcheck // use same version than protoactor library
-	"github.com/golang/protobuf/ptypes" //nolint:staticcheck // use same version than protoactor library
+	"github.com/asynkron/protoactor-go/actor"
+	p "github.com/asynkron/protoactor-go/persistence"
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
 	"go.uber.org/atomic"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/ccamel/playground-protoactor.go/internal/persistence"
@@ -128,7 +128,7 @@ func (provider *ProviderState) GetSnapshot(actorName string) (interface{}, int, 
 
 func (provider *ProviderState) PersistSnapshot(actorName string, eventIndex int, snapshot proto.Message) {
 	err := provider.db.Update(func(tx *bolt.Tx) error {
-		payload, err := ptypes.MarshalAny(snapshot)
+		payload, err := anypb.New(snapshot)
 		if err != nil {
 			return err
 		}
@@ -199,7 +199,7 @@ func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, ev
 			return ulid.ULID{}, nil, err
 		}
 
-		payload, err := ptypes.MarshalAny(event)
+		payload, err := anypb.New(event)
 		if err != nil {
 			return id, nil, err
 		}
@@ -370,10 +370,10 @@ func unmarshallPayload(buf []byte) (interface{}, error) {
 		return nil, err
 	}
 
-	var dynamic ptypes.DynamicAny
-	if err := ptypes.UnmarshalAny(entity.Payload, &dynamic); err != nil {
+	message, err := entity.Payload.UnmarshalNew()
+	if err != nil {
 		return nil, err
 	}
 
-	return dynamic.Message, nil
+	return message, nil
 }

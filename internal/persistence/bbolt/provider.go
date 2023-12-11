@@ -13,7 +13,7 @@
 // limitations under the License.
 package bbolt
 
-import "github.com/AsynkronIT/protoactor-go/persistence"
+import "github.com/asynkron/protoactor-go/persistence"
 
 type Provider struct {
 	providerState persistence.ProviderState

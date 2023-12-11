@@ -16,11 +16,10 @@ package booklend
 import (
 	"fmt"
 
-	"github.com/AsynkronIT/protoactor-go/actor"
-	"github.com/AsynkronIT/protoactor-go/persistence"
-	"github.com/gogo/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
+	"github.com/asynkron/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/persistence"
 	"google.golang.org/genproto/googleapis/rpc/code"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -47,14 +46,12 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 	case *persistence.RequestSnapshot:
 		a.PersistSnapshot(a.state)
 	case *persistencev1.ConsiderSnapshot:
-		var dynamic ptypes.DynamicAny
-
-		err := ptypes.UnmarshalAny(msg.Payload, &dynamic)
-		if err != nil {
+		entity := new(booklendv1.BookEntity)
+		if err := msg.Payload.UnmarshalTo(entity); err != nil {
 			panic(err)
 		}
 
-		a.state = dynamic.Message.(*booklendv1.BookEntity)
+		a.state = entity
 	case *booklendv1.RegisterBook:
 		if a.state.Id != "" {
 			context.Respond(&booklendv1.CommandStatus{
@@ -119,25 +116,25 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 			break
 		}
 
-		t2, err := ptypes.Timestamp(msg.Date)
-		if err != nil {
+		if !msg.Date.IsValid() {
 			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_UNKNOWN,
-				Message: fmt.Sprintf("failed to parse date: %s", err.Error()),
+				Message: fmt.Sprintf("date %s is invalid", msg.Date.String()),
 			})
 
 			break
 		}
+		t2 := msg.Date.AsTime()
 
-		t1, err := ptypes.Timestamp(a.state.Date)
-		if err != nil {
+		if !a.state.Date.IsValid() {
 			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_UNKNOWN,
-				Message: fmt.Sprintf("failed to parse date: %s", err.Error()),
+				Message: fmt.Sprintf("date %s is invalid", a.state.Date.String()),
 			})
 
 			break
 		}
+		t1 := a.state.Date.AsTime()
 
 		if t2.Before(t1) {
 			context.Respond(&booklendv1.CommandStatus{
@@ -178,7 +175,7 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 }
 
 func (a *BookAggregate) applyAndReply(context actor.Context, response proto.Message, events ...proto.Message) {
-	// save sender - issue https://github.com/AsynkronIT/protoactor-go/issues/256
+	// save sender - issue https://github.com/asynkron/protoactor-go/issues/256
 	sender := context.Sender()
 
 	for _, event := range events {

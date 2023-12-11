@@ -14,9 +14,9 @@
 package middleware
 
 import (
-	"github.com/AsynkronIT/protoactor-go/actor"
-	"github.com/AsynkronIT/protoactor-go/persistence"
-	"github.com/golang/protobuf/proto" //nolint:staticcheck // use same version than protoactor library
+	"github.com/asynkron/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/persistence"
+	"google.golang.org/protobuf/proto"
 )
 
 type persistent interface { // hack, as interface from protobuf is not public

@@ -16,7 +16,7 @@ package middleware
 import (
 	"sync"
 
-	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/actor"
 )
 
 func SystemSync(wg *sync.WaitGroup) actor.ReceiverMiddleware {

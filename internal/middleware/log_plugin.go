@@ -16,7 +16,7 @@ package middleware
 import (
 	"bytes"
 
-	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/actor"
 	"github.com/rs/zerolog"
 
 	logv1 "github.com/ccamel/playground-protoactor.go/internal/system/log/v1"
