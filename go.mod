@@ -11,7 +11,7 @@ require (
 	github.com/smartystreets/goconvey v1.6.7
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.18.1
-	github.com/vrecan/death v0.0.0-20200705210906-920f972a884a
+	github.com/vrecan/death v3.0.1+incompatible
 	go.etcd.io/bbolt v1.3.5
 	go.uber.org/atomic v1.11.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f
@@ -22,6 +22,7 @@ require (
 	github.com/Workiva/go-datastructures v1.1.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
