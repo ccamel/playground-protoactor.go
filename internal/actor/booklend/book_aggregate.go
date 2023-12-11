@@ -18,7 +18,6 @@ import (
 
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/persistence"
-	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -117,25 +116,25 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 			break
 		}
 
-		t2, err := ptypes.Timestamp(msg.Date)
-		if err != nil {
+		if !msg.Date.IsValid() {
 			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_UNKNOWN,
-				Message: fmt.Sprintf("failed to parse date: %s", err.Error()),
+				Message: fmt.Sprintf("date %s is invalid", msg.Date.String()),
 			})
 
 			break
 		}
+		t2 := msg.Date.AsTime()
 
-		t1, err := ptypes.Timestamp(a.state.Date)
-		if err != nil {
+		if !a.state.Date.IsValid() {
 			context.Respond(&booklendv1.CommandStatus{
 				Code:    code.Code_UNKNOWN,
-				Message: fmt.Sprintf("failed to parse date: %s", err.Error()),
+				Message: fmt.Sprintf("date %s is invalid", a.state.Date.String()),
 			})
 
 			break
 		}
+		t1 := a.state.Date.AsTime()
 
 		if t2.Before(t1) {
 			context.Respond(&booklendv1.CommandStatus{

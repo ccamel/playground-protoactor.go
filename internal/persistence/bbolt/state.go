@@ -23,7 +23,6 @@ import (
 
 	"github.com/asynkron/protoactor-go/actor"
 	p "github.com/asynkron/protoactor-go/persistence"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 	"github.com/rs/zerolog/log"
@@ -371,10 +370,10 @@ func unmarshallPayload(buf []byte) (interface{}, error) {
 		return nil, err
 	}
 
-	var dynamic ptypes.DynamicAny
-	if err := ptypes.UnmarshalAny(entity.Payload, &dynamic); err != nil {
+	message, err := entity.Payload.UnmarshalNew()
+	if err != nil {
 		return nil, err
 	}
 
-	return dynamic.Message, nil
+	return message, nil
 }
