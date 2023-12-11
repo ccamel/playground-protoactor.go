@@ -55,7 +55,7 @@ func LifecycleLogger() actor.ReceiverMiddleware {
 				}
 
 				logger.
-					Stringer("actor", context.Self()).
+					Str("actor", fmt.Sprintf("%s@%s", context.Self().Id, context.Self().Address)).
 					Str("state", t).
 					Msgf("actor <%s> %s", context.Self().Id, s)
 			}
