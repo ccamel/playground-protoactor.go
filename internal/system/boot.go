@@ -16,9 +16,9 @@ package system
 import (
 	SYS "syscall"
 
-	"github.com/AsynkronIT/protoactor-go/actor"
-	"github.com/AsynkronIT/protoactor-go/actor/middleware/propagator"
-	"github.com/AsynkronIT/protoactor-go/plugin"
+	"github.com/asynkron/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/actor/middleware/propagator"
+	"github.com/asynkron/protoactor-go/plugin"
 	"github.com/rs/zerolog/log"
 	DEATH "github.com/vrecan/death"
 
@@ -82,7 +82,10 @@ func Boot() (*System, error) {
 				).
 				SpawnMiddleware)
 
-	props := actor.PropsFromProducer(core.New()).WithSupervisor(actor.RestartingSupervisorStrategy())
+	props := actor.PropsFromProducer(core.New()).
+		Configure(
+			actor.WithSupervisor(actor.RestartingSupervisorStrategy()),
+		)
 
 	pid, err := rootContext.SpawnNamed(props, "init")
 	if err != nil {

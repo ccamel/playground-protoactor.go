@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/actor"
 	"github.com/rs/zerolog/log"
 )
 
