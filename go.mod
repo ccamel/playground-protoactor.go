@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/asynkron/protoactor-go v0.0.0-20231129171315-96b68481eb80
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.5.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/oklog/ulid/v2 v2.0.2
 	github.com/rs/zerolog v1.31.0
