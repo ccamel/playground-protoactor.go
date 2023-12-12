@@ -9,7 +9,7 @@ require (
 	github.com/oklog/ulid/v2 v2.0.2
 	github.com/rs/zerolog v1.31.0
 	github.com/smartystreets/goconvey v1.6.7
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.1
 	github.com/vrecan/death v3.0.1+incompatible
 	go.etcd.io/bbolt v1.3.5
