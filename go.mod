@@ -10,7 +10,7 @@ require (
 	github.com/rs/zerolog v1.31.0
 	github.com/smartystreets/goconvey v1.8.1
 	github.com/spf13/cobra v1.8.0
-	github.com/spf13/viper v1.18.1
+	github.com/spf13/viper v1.18.2
 	github.com/vrecan/death v3.0.1+incompatible
 	go.etcd.io/bbolt v1.3.8
 	go.uber.org/atomic v1.11.0
