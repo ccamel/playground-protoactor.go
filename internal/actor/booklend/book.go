@@ -27,17 +27,17 @@ import (
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 )
 
-type BookAggregate struct {
+type Book struct {
 	persistence.Mixin
 	state *booklendv1.BookEntity
 }
 
-func (a *BookAggregate) Receive(context actor.Context) {
+func (a *Book) Receive(context actor.Context) {
 	a.handleMessage(context, context.Message())
 }
 
 //nolint:funlen // relax
-func (a *BookAggregate) handleMessage(context actor.Context, message interface{}) {
+func (a *Book) handleMessage(context actor.Context, message interface{}) {
 	switch msg := message.(type) {
 	case *actor.Started:
 		a.state = &booklendv1.BookEntity{}
@@ -174,7 +174,7 @@ func (a *BookAggregate) handleMessage(context actor.Context, message interface{}
 	}
 }
 
-func (a *BookAggregate) applyAndReply(context actor.Context, response proto.Message, events ...proto.Message) {
+func (a *Book) applyAndReply(context actor.Context, response proto.Message, events ...proto.Message) {
 	// save sender - issue https://github.com/asynkron/protoactor-go/issues/256
 	sender := context.Sender()
 
@@ -188,9 +188,9 @@ func (a *BookAggregate) applyAndReply(context actor.Context, response proto.Mess
 	}
 }
 
-func newBookAggregate() *actor.Props {
+func newAggregate() *actor.Props {
 	return actor.
 		PropsFromProducer(func() actor.Actor {
-			return &BookAggregate{}
+			return &Book{}
 		})
 }
