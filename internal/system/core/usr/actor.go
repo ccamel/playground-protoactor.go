@@ -31,7 +31,7 @@ type Actor struct{}
 func (state *Actor) Receive(context actor.Context) {
 	switch context.Message().(type) {
 	case *actor.Started:
-		pid, _ := context.SpawnNamed(booklend.NewBookCommandHandler(), "book_lend")
+		pid, _ := context.SpawnNamed(booklend.NewService(), "book_lend")
 
 		bookID := "207b6be6-a7e4-4cc7-a692-b51e79de0460" // uuid.New().String()
 

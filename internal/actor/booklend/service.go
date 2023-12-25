@@ -23,11 +23,11 @@ import (
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
 )
 
-type BookService struct {
+type Service struct {
 	middleware.LogAwareHolder
 }
 
-func (a *BookService) Receive(context actor.Context) {
+func (a *Service) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *booklendv1.RegisterBook:
 		a.doCommand(context, msg.BookId)
@@ -46,7 +46,7 @@ func (a *BookService) Receive(context actor.Context) {
 }
 
 // doCommand process the given command to the aggregate.
-func (a *BookService) doCommand(context actor.Context, id string) {
+func (a *Service) doCommand(context actor.Context, id string) {
 	book, err := getOrSpawn(context, id)
 	if err != nil {
 		context.Respond(&booklendv1.CommandStatus{
@@ -66,12 +66,12 @@ func getOrSpawn(context actor.Context, name string) (*actor.PID, error) {
 		}
 	}
 
-	return context.SpawnNamed(newBookAggregate(), name)
+	return context.SpawnNamed(newAggregate(), name)
 }
 
-func NewBookCommandHandler() *actor.Props {
+func NewService() *actor.Props {
 	return actor.
 		PropsFromProducer(func() actor.Actor {
-			return &BookService{}
+			return &Service{}
 		})
 }
