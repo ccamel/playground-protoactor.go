@@ -2,8 +2,8 @@ package core
 
 import (
 	"github.com/asynkron/protoactor-go/actor"
-	"github.com/ccamel/playground-protoactor.go/internal/system/core/sys"
 
+	"github.com/ccamel/playground-protoactor.go/internal/system/core/sys"
 	"github.com/ccamel/playground-protoactor.go/internal/system/core/usr"
 )
 

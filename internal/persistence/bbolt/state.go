@@ -49,8 +49,10 @@ func NewProvider(system *actor.ActorSystem, path string, snapshotInterval int) (
 	}
 
 	log.Info().
-		Str("bd", db.Path()).
-		Msg("event store opened")
+		Str("db", "bbolt").
+		Str("path", db.Path()).
+		Str("snapshotInterval", fmt.Sprintf("%d", snapshotInterval)).
+		Msg("persistence provider started")
 
 	err = db.Update(func(tx *bolt.Tx) error {
 		if _, err := tx.CreateBucketIfNotExists([]byte("events")); err != nil {
