@@ -7,13 +7,20 @@ import (
 	"github.com/ccamel/playground-protoactor.go/internal/system"
 )
 
+var persistenceURI string
+
 // serveCmd represents the serve command.
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Start the protoactor platform",
 	Long:  `Start the protoactor platform`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		sys, err := system.Boot()
+		config, err := newSystemConfig()
+		if err != nil {
+			return err
+		}
+
+		sys, err := system.Boot(*config)
 		if err != nil {
 			return err
 		}
@@ -25,5 +32,21 @@ var serveCmd = &cobra.Command{
 }
 
 func init() {
+	serveCmd.Flags().StringVar(
+		&persistenceURI,
+		"persistence-uri",
+		"db:bbolt:./my-db?snapshotInterval=3",
+		"Persistence URI. Supported databases: bbolt")
+
 	rootCmd.AddCommand(serveCmd)
+}
+
+func newSystemConfig() (*system.Config, error) {
+	var configOptions []system.Option
+
+	if persistenceURI != "" {
+		configOptions = append(configOptions, system.WithPersistenceURI(persistenceURI))
+	}
+
+	return system.NewConfig(configOptions...)
 }
