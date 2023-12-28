@@ -7,10 +7,11 @@
 package bboltv1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -156,11 +157,13 @@ func file_persistence_bbolt_v1_test_proto_rawDescGZIP() []byte {
 	return file_persistence_bbolt_v1_test_proto_rawDescData
 }
 
-var file_persistence_bbolt_v1_test_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_persistence_bbolt_v1_test_proto_goTypes = []interface{}{
-	(*SomethingHappened)(nil),     // 0: persistence.bbolt.v1.SomethingHappened
-	(*SomethingElseHappened)(nil), // 1: persistence.bbolt.v1.SomethingElseHappened
-}
+var (
+	file_persistence_bbolt_v1_test_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	file_persistence_bbolt_v1_test_proto_goTypes  = []interface{}{
+		(*SomethingHappened)(nil),     // 0: persistence.bbolt.v1.SomethingHappened
+		(*SomethingElseHappened)(nil), // 1: persistence.bbolt.v1.SomethingElseHappened
+	}
+)
 var file_persistence_bbolt_v1_test_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
