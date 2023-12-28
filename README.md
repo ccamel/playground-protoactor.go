@@ -61,7 +61,7 @@ flowchart LR
     A(["init/usr/book_lend"])
     B(["init/usr/book_lend/_id"])
 
-    es[(Event\nStore)]
+    es[(Persistence\nStore)]
 
     O --> | RegisterBook _id | A
     A -.-> | spawn _id | B
@@ -69,3 +69,13 @@ flowchart LR
     A --> | RegisterBook _id | B
     es -.-> | event stream | B
 ```
+
+#### Persistence
+
+The persistence of the aggregate's state is achieved by storing the Event Stream of the aggregate for the specified identifier The aggregate's state is restored by consuming the Event Stream.
+
+Besides the Event Stream, the aggregate also maintains a snapshot of its state. The snapshot is used to restore the state of the aggregate, which is then updated by consuming the Event Stream.
+
+The supported persistence databases include:
+
+- [bbolt](https://github.com/etcd-io/bbolt): An embedded key/value database for Go.
