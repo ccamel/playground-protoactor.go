@@ -79,3 +79,29 @@ Besides the Event Stream, the aggregate also maintains a snapshot of its state. 
 The supported persistence databases include:
 
 - [bbolt](https://github.com/etcd-io/bbolt): An embedded key/value database for Go.
+- `memory`: An in-memory persistence store.
+
+##### Events
+
+Events are stored as records in the persistence store. A record maintains the following information:
+
+- `id`: uniquely identifies this event. It can be used for tracing and debugging purposes.
+- `type`: categorizes the event. It's the name of the protobuf message that represents the event.
+- `stream_id`: associates this event with a specific stream of events. It's the name of the actor that generated this event.
+- `version`: represents the version of the aggregate after this event has been applied.
+- `sequence_number`: is a monotonically increasing number that orders events within the same stream.
+- `tags`: are optional labels or keywords associated with the event, useful for filtering or categorization.
+- `storage_timestamp`: is the timestamp when this event was saved to storage.
+- `metadata`: provides additional, contextual information about the event.
+- `payload`: contains the detailed data of the event in a protobuf serialized form.
+
+#### Snapshots
+
+Snapshots are stored as records in the persistence store. A record maintains the following information:
+
+- `id`: uniquely identifies this snaphot. It can be used for tracing and debugging purposes.
+- `type`: categorizes the event. It's the name of the protobuf message that represents the entity.
+- `version`: is a numeric representation of the version of the aggregate at the time of this snapshot.
+- `storage_timestamp`: is the timestamp when this snapshot was saved to storage.
+- `metadata`: contains additional, possibly optional, information about the snapshot, such as source or context.
+- `payload`: holds the actual data of the snapshot in a protobuf serialized form.
