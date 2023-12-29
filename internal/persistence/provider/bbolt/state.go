@@ -3,9 +3,7 @@ package bbolt
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"sync"
-	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/google/uuid"
@@ -34,9 +32,7 @@ type ProviderState struct {
 	system           *actor.ActorSystem
 	snapshotInterval int
 	db               *bolt.DB
-	muID             sync.Mutex
 	muPublish        sync.Mutex
-	entropy          io.Reader
 	subscribers      *sync.Map
 }
 
@@ -141,13 +137,7 @@ func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, 
 
 func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, event proto.Message) {
 	id, entity, err := func() (ulid.ULID, *persistencev1.EventRecord, error) {
-		provider.muID.Lock()
-		id, err := ulid.New(ulid.Timestamp(time.Now()), provider.entropy)
-		provider.muID.Unlock()
-
-		if err != nil {
-			return ulid.ULID{}, nil, err
-		}
+		id := util.MakeULID()
 
 		payload, err := anypb.New(event)
 		if err != nil {

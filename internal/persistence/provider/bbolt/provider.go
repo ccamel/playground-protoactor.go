@@ -2,13 +2,10 @@ package bbolt
 
 import (
 	"fmt"
-	"math/rand"
 	"sync"
-	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/persistence"
-	"github.com/oklog/ulid/v2"
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
 )
@@ -52,7 +49,6 @@ func NewProvider(system *actor.ActorSystem, path string, snapshotInterval int) (
 			system:           system,
 			snapshotInterval: snapshotInterval,
 			db:               db,
-			entropy:          ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0), //nolint:gosec
 			subscribers:      &sync.Map{},
 		},
 	}, nil

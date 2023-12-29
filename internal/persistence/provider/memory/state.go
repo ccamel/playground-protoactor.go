@@ -2,18 +2,16 @@ package memory
 
 import (
 	"fmt"
-	"io"
 	"sync"
-	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
-	"github.com/oklog/ulid/v2"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
+	"github.com/ccamel/playground-protoactor.go/internal/util"
 )
 
 var ErrNotFound = fmt.Errorf("not found")
@@ -25,11 +23,9 @@ type ProviderState struct {
 	events    map[string][]*persistencev1.EventRecord
 	snapshots map[string]*persistencev1.SnapshotRecord
 
-	muID       sync.RWMutex
 	muEvent    sync.RWMutex
 	muSnapshot sync.RWMutex
 
-	entropy     io.Reader
 	subscribers *sync.Map
 }
 
@@ -105,19 +101,7 @@ func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, 
 }
 
 func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, event proto.Message) {
-	provider.muID.Lock()
-	id, err := ulid.New(ulid.Timestamp(time.Now()), provider.entropy)
-	provider.muID.Unlock()
-
-	if err != nil {
-		log.
-			Panic().
-			Str("actor", actorName).
-			Int("eventIndex", eventIndex).
-			Err(err).
-			Msg("Failed to create entity event")
-	}
-
+	id := util.MakeULID()
 	payload, err := anypb.New(event)
 	if err != nil {
 		log.
