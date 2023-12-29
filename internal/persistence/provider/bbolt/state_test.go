@@ -11,7 +11,7 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	bboltv1 "github.com/ccamel/playground-protoactor.go/internal/persistence/bbolt/v1"
+	bboltv1 "github.com/ccamel/playground-protoactor.go/internal/persistence/provider/bbolt/v1"
 )
 
 func TestNewProvider(t *testing.T) {

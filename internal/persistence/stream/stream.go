@@ -1,4 +1,4 @@
-package persistence
+package stream
 
 import (
 	"github.com/asynkron/protoactor-go/actor"

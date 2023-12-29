@@ -3,13 +3,9 @@ package bbolt
 import (
 	"bytes"
 	"fmt"
-	"io"
-	"math/rand"
 	"sync"
-	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
-	p "github.com/asynkron/protoactor-go/persistence"
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 	"github.com/rs/zerolog/log"
@@ -19,7 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/ccamel/playground-protoactor.go/internal/persistence"
+	"github.com/ccamel/playground-protoactor.go/internal/persistence/stream"
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 	"github.com/ccamel/playground-protoactor.go/internal/util"
 )
@@ -28,7 +24,7 @@ var ErrNotFound = fmt.Errorf("not found")
 
 type subscription struct {
 	actor     *actor.PID
-	predicate persistence.EventPredicate
+	predicate stream.EventPredicate
 	handler   func(event proto.Message)
 }
 
@@ -36,47 +32,8 @@ type ProviderState struct {
 	system           *actor.ActorSystem
 	snapshotInterval int
 	db               *bolt.DB
-	muID             sync.Mutex
 	muPublish        sync.Mutex
-	entropy          io.Reader
 	subscribers      *sync.Map
-}
-
-func NewProvider(system *actor.ActorSystem, path string, snapshotInterval int) (p.Provider, error) {
-	db, err := bolt.Open(path, 0o666, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	log.Info().
-		Str("db", "bbolt").
-		Str("path", db.Path()).
-		Str("snapshotInterval", fmt.Sprintf("%d", snapshotInterval)).
-		Msg("persistence provider started")
-
-	err = db.Update(func(tx *bolt.Tx) error {
-		if _, err := tx.CreateBucketIfNotExists([]byte("events")); err != nil {
-			return err
-		}
-		if _, err := tx.CreateBucketIfNotExists([]byte("snapshots")); err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &Provider{
-		providerState: &ProviderState{
-			system:           system,
-			snapshotInterval: snapshotInterval,
-			db:               db,
-			entropy:          ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0), //nolint:gosec
-			subscribers:      &sync.Map{},
-		},
-	}, nil
 }
 
 func (provider *ProviderState) Restart() {}
@@ -180,13 +137,7 @@ func (provider *ProviderState) GetEvents(actorName string, eventIndexStart int, 
 
 func (provider *ProviderState) PersistEvent(actorName string, eventIndex int, event proto.Message) {
 	id, entity, err := func() (ulid.ULID, *persistencev1.EventRecord, error) {
-		provider.muID.Lock()
-		id, err := ulid.New(ulid.Timestamp(time.Now()), provider.entropy)
-		provider.muID.Unlock()
-
-		if err != nil {
-			return ulid.ULID{}, nil, err
-		}
+		id := util.MakeULID()
 
 		payload, err := anypb.New(event)
 		if err != nil {
@@ -265,7 +216,7 @@ func (provider *ProviderState) publish(event *persistencev1.EventRecord) {
 	})
 }
 
-func (provider *ProviderState) Subscribe(pid *actor.PID, last *string, predicate persistence.EventPredicate) persistence.SubscriptionID {
+func (provider *ProviderState) Subscribe(pid *actor.PID, last *string, predicate stream.EventPredicate) stream.SubscriptionID {
 	flag := atomic.NewBool(false)
 	buffer := make([]interface{}, 0, 64)
 
@@ -325,10 +276,10 @@ func (provider *ProviderState) Subscribe(pid *actor.PID, last *string, predicate
 		}
 	}()
 
-	return persistence.SubscriptionID(subscriptionID)
+	return stream.SubscriptionID(subscriptionID)
 }
 
-func (provider *ProviderState) Unsubscribe(_ persistence.SubscriptionID) {
+func (provider *ProviderState) Unsubscribe(_ stream.SubscriptionID) {
 }
 
 func (provider *ProviderState) Close() error {

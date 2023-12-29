@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package persistence.provider.memory.v1;
+option go_package = "github.com/ccamel/playground-protoactor.go/internal/persistence/provider/memory";
+
+message SomethingHappened {
+  string message = 1;
+}
+
+message SomethingElseHappened {
+  uint64 value = 1;
+}

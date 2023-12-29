@@ -4,12 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+
+	"github.com/ccamel/playground-protoactor.go/internal/persistence"
 )
 
-type URI string
-
 type Config struct {
-	PersistenceURI URI
+	PersistenceURI persistence.URI
 }
 
 type Option func(*Config) error
@@ -44,7 +44,7 @@ func WithPersistenceURI(uri string) Option {
 			return fmt.Errorf("%w: scheme must be 'db'", ErrInvalidScheme)
 		}
 
-		c.PersistenceURI = URI(uri)
+		c.PersistenceURI = persistence.URI(uri)
 
 		return nil
 	}
