@@ -2,12 +2,15 @@ package bbolt
 
 import (
 	"fmt"
+	"net/url"
 	"sync"
 
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/persistence"
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
+
+	provider "github.com/ccamel/playground-protoactor.go/internal/persistence"
 )
 
 type Provider struct {
@@ -18,7 +21,16 @@ func (p *Provider) GetState() persistence.ProviderState {
 	return p.providerState
 }
 
-func NewProvider(system *actor.ActorSystem, path string, snapshotInterval int) (persistence.Provider, error) {
+func NewProvider(system *actor.ActorSystem, uri *url.URL) (persistence.Provider, error) {
+	path, err := provider.GetPath(uri)
+	if err != nil {
+		return nil, fmt.Errorf("invalid persistence URI: %s. %w", uri, err)
+	}
+	snapshotInterval, err := provider.GetSnapshotInterval(uri)
+	if err != nil {
+		return nil, fmt.Errorf("invalid persistence URI: %s. %w", uri, err)
+	}
+
 	db, err := bolt.Open(path, 0o666, nil)
 	if err != nil {
 		return nil, err
@@ -52,4 +64,8 @@ func NewProvider(system *actor.ActorSystem, path string, snapshotInterval int) (
 			subscribers:      &sync.Map{},
 		},
 	}, nil
+}
+
+func init() {
+	provider.RegisterFactory("db", NewProvider)
 }

@@ -3,17 +3,50 @@ package persistence
 import (
 	"fmt"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/persistence"
-
-	"github.com/ccamel/playground-protoactor.go/internal/persistence/provider/bbolt"
-	"github.com/ccamel/playground-protoactor.go/internal/persistence/provider/memory"
 )
 
-type URI string
+type (
+	ProviderFactory func(system *actor.ActorSystem, uri *url.URL) (persistence.Provider, error)
+	FactoryRegistry map[string]ProviderFactory
+)
+
+func (f FactoryRegistry) Get(name string) (ProviderFactory, error) {
+	factory, ok := f[name]
+	if !ok {
+		return nil, fmt.Errorf(
+			"unsupported persistence scheme: %s. Supported schemes: %s",
+			name,
+			strings.Join(getSupportedSchemes(), ", "))
+	}
+	return factory, nil
+}
+
+func (f FactoryRegistry) GetFromURI(uri *url.URL) (ProviderFactory, error) {
+	db, err := GetDBName(uri)
+	if err != nil {
+		return nil, err
+	}
+	return f.Get(db)
+}
+
+func getSupportedSchemes() []string {
+	schemes := make([]string, 0, len(factories))
+	for scheme := range factories {
+		schemes = append(schemes, scheme)
+	}
+	return schemes
+}
+
+// factories is the list of registered persistence providers.
+var factories FactoryRegistry = make(map[string]ProviderFactory)
+
+func RegisterFactory(name string, factory func(system *actor.ActorSystem, uri *url.URL) (persistence.Provider, error)) {
+	factories[name] = factory
+}
 
 func NewProvider(system *actor.ActorSystem, uri URI) (persistence.Provider, error) {
 	if uri == "" {
@@ -25,49 +58,14 @@ func NewProvider(system *actor.ActorSystem, uri URI) (persistence.Provider, erro
 		return nil, err
 	}
 
-	switch parsedURI.Scheme {
-	case "db":
-		parts := strings.Split(parsedURI.Opaque, ":")
-		if len(parts) < 2 {
-			return nil, fmt.Errorf("invalid persistence URI: %s", uri)
-		}
-		head := parts[0]
-		tail := parts[1]
-
-		switch head {
-		case "bbolt":
-			path, err := url.PathUnescape(tail)
-			if err != nil {
-				return nil, fmt.Errorf("invalid persistence URI: %s. %w", uri, err)
-			}
-
-			snapshotInterval, err := getSnapshotInterval(parsedURI)
-			if err != nil {
-				return nil, fmt.Errorf("invalid persistence URI: %s. %w", uri, err)
-			}
-
-			return bbolt.NewProvider(system, path, snapshotInterval)
-		case "memory":
-			snapshotInterval, err := getSnapshotInterval(parsedURI)
-			if err != nil {
-				return nil, fmt.Errorf("invalid persistence URI: %s. %w", uri, err)
-			}
-
-			return memory.NewProvider(system, snapshotInterval)
-		default:
-			return nil, fmt.Errorf("unsupported database: %s", head)
-		}
-	default:
+	if parsedURI.Scheme != "db" {
 		return nil, fmt.Errorf("invalid persistence URI: %s", uri)
 	}
-}
 
-func getSnapshotInterval(parsedURI *url.URL) (snapshotInterval int, err error) {
-	snapshotInterval = 3
-	if snapshotIntervalStr := parsedURI.Query().Get("snapshotInterval"); snapshotIntervalStr != "" {
-		if snapshotInterval, err = strconv.Atoi(snapshotIntervalStr); err != nil {
-			return 0, fmt.Errorf("invalid snapshotInterval value: %s. %w", snapshotIntervalStr, err)
-		}
+	factory, err := factories.Get(parsedURI.Scheme)
+	if err != nil {
+		return nil, err
 	}
-	return
+
+	return factory(system, parsedURI)
 }

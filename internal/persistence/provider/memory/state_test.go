@@ -2,6 +2,7 @@ package memory
 
 import (
 	"fmt"
+	"net/url"
 	"testing"
 
 	"google.golang.org/protobuf/proto"
@@ -13,7 +14,9 @@ import (
 
 func TestNewProvider(t *testing.T) {
 	Convey("Given a NewProvider", t, func() {
-		p, err := NewProvider(nil, 5)
+		uri, err := url.Parse(fmt.Sprintf("db:memory?snapshotInterval=%d", 5))
+		So(err, ShouldBeNil)
+		p, err := NewProvider(nil, uri)
 
 		So(err, ShouldBeNil)
 		So(p, ShouldNotBeNil)

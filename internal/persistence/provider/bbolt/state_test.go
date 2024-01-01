@@ -3,6 +3,7 @@ package bbolt
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path"
 	"testing"
@@ -20,7 +21,9 @@ func TestNewProvider(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("Given a NewProvider", func() {
-			p, err := NewProvider(nil, path.Join(dir, "event-store.bolt.db"), 5)
+			uri, err := url.Parse(fmt.Sprintf("db:bbolt:%s?snapshotInterval=%d", path.Join(dir, "event-store.bolt.db"), 5))
+			So(err, ShouldBeNil)
+			p, err := NewProvider(nil, uri)
 
 			So(err, ShouldBeNil)
 			So(p, ShouldNotBeNil)
