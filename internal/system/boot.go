@@ -10,7 +10,7 @@ import (
 	DEATH "github.com/vrecan/death"
 
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
-	"github.com/ccamel/playground-protoactor.go/internal/persistence"
+	"github.com/ccamel/playground-protoactor.go/internal/persistence/registry"
 	"github.com/ccamel/playground-protoactor.go/internal/system/core"
 )
 
@@ -51,7 +51,7 @@ func Boot(config Config) (*System, error) {
 		Str("registryAddress", system.ProcessRegistry.Address).
 		Msg("system started")
 
-	provider, err := persistence.NewProvider(system, config.PersistenceURI)
+	provider, err := registry.NewProvider(system, config.PersistenceURI)
 	if err != nil {
 		return nil, err
 	}

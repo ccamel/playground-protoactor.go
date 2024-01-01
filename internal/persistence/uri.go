@@ -32,8 +32,9 @@ func GetDBName(parsedURI *url.URL) (db string, err error) {
 
 func GetPath(parsedURI *url.URL) (path string, err error) {
 	parts := strings.Split(parsedURI.Opaque, ":")
+
 	if len(parts) < 2 {
-		return "", fmt.Errorf("invalid persistence URI: %s", parsedURI.String())
+		return url.PathUnescape(parts[0])
 	}
 
 	return url.PathUnescape(parts[1])

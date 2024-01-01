@@ -6,27 +6,21 @@ import (
 	"sync"
 
 	"github.com/asynkron/protoactor-go/actor"
-	"github.com/asynkron/protoactor-go/persistence"
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
 
-	provider "github.com/ccamel/playground-protoactor.go/internal/persistence"
+	persistence2 "github.com/ccamel/playground-protoactor.go/internal/persistence"
+	"github.com/ccamel/playground-protoactor.go/internal/persistence/registry"
 )
 
-type Provider struct {
-	providerState persistence.ProviderState
-}
+const DBName = "bbolt"
 
-func (p *Provider) GetState() persistence.ProviderState {
-	return p.providerState
-}
-
-func NewProvider(system *actor.ActorSystem, uri *url.URL) (persistence.Provider, error) {
-	path, err := provider.GetPath(uri)
+func NewStore(system *actor.ActorSystem, uri *url.URL) (persistence2.Store, error) {
+	path, err := persistence2.GetPath(uri)
 	if err != nil {
 		return nil, fmt.Errorf("invalid persistence URI: %s. %w", uri, err)
 	}
-	snapshotInterval, err := provider.GetSnapshotInterval(uri)
+	snapshotInterval, err := persistence2.GetSnapshotInterval(uri)
 	if err != nil {
 		return nil, fmt.Errorf("invalid persistence URI: %s. %w", uri, err)
 	}
@@ -37,7 +31,7 @@ func NewProvider(system *actor.ActorSystem, uri *url.URL) (persistence.Provider,
 	}
 
 	log.Info().
-		Str("db", "bbolt").
+		Str("db", DBName).
 		Str("path", db.Path()).
 		Str("snapshotInterval", fmt.Sprintf("%d", snapshotInterval)).
 		Msg("persistence provider started")
@@ -56,16 +50,14 @@ func NewProvider(system *actor.ActorSystem, uri *url.URL) (persistence.Provider,
 		return nil, err
 	}
 
-	return &Provider{
-		providerState: &ProviderState{
-			system:           system,
-			snapshotInterval: snapshotInterval,
-			db:               db,
-			subscribers:      &sync.Map{},
-		},
+	return &Store{
+		system:           system,
+		snapshotInterval: snapshotInterval,
+		db:               db,
+		subscribers:      &sync.Map{},
 	}, nil
 }
 
 func init() {
-	provider.RegisterFactory("db", NewProvider)
+	registry.RegisterFactory(DBName, NewStore)
 }
