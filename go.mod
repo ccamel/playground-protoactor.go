@@ -1,6 +1,7 @@
 module github.com/ccamel/playground-protoactor.go
 
 go 1.21
+toolchain go1.22.5
 
 require (
 	github.com/asynkron/protoactor-go v0.0.0-20231129171315-96b68481eb80
@@ -12,7 +13,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	github.com/vrecan/death v3.0.1+incompatible
-	go.etcd.io/bbolt v1.3.10
+	go.etcd.io/bbolt v1.3.11
 	go.uber.org/atomic v1.11.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240314234333-6e1732d8331c
 	google.golang.org/protobuf v1.34.2
