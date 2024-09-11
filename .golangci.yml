@@ -21,7 +21,7 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
+    - copyloopvar
     - funlen
     - forbidigo
     - gci
