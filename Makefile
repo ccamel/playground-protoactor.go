@@ -1,7 +1,7 @@
 .EXPORT_ALL_VARIABLES:
 
 # Docker images
-DOCKER_IMAGE_GOLANG	 = golang:1.21-alpine3.17
+DOCKER_IMAGE_GOLANG	 = golang:1.23-alpine3.20
 DOCKER_IMAGE_BUF     = bufbuild/buf:1.28.1
 
 default: build

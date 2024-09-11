@@ -16,7 +16,7 @@ type persistent interface { // hack, as interface from protobuf is not public
 func PersistenceUsing(provider persistence.Provider) func(next actor.ReceiverFunc) actor.ReceiverFunc {
 	return OptionalUsing(
 		persistence.Using(provider),
-		func(ctx actor.ReceiverContext, env *actor.MessageEnvelope) bool {
+		func(ctx actor.ReceiverContext, _ *actor.MessageEnvelope) bool {
 			_, ok := ctx.Actor().(persistent)
 
 			return ok

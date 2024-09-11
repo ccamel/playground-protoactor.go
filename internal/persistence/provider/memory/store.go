@@ -1,3 +1,4 @@
+//nolint:gosec // we need to make some dirt conversions to adapt to the interfaces
 package memory
 
 import (

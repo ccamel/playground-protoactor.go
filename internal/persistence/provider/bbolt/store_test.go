@@ -12,7 +12,7 @@ import (
 )
 
 func TestStore(t *testing.T) {
-	Convey("Under temporary directory", t, func(c C) {
+	Convey("Under temporary directory", t, func(_ C) {
 		dir, err := os.MkdirTemp("", "test-db-")
 		So(err, ShouldBeNil)
 

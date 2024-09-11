@@ -27,11 +27,11 @@ func DoTest(uri string, factory registry.StoreFactory) {
 				So(p, ShouldNotBeNil)
 			})
 
-			nbEvents := 15
+			nbEvents := uint8(15)
 			Convey(fmt.Sprintf("And when inserting a %d events", nbEvents), func() {
 				records := make([]*persistencev1.EventRecord, nbEvents)
 
-				for i := 0; i < nbEvents; i++ {
+				for i := uint8(0); i < nbEvents; i++ {
 					var event proto.Message
 					if i%2 == 0 {
 						event = &providerv1.SomethingHappened{Message: fmt.Sprintf("This is message %d", i)}
@@ -57,10 +57,10 @@ func DoTest(uri string, factory registry.StoreFactory) {
 					p.PersistEvent("test", record)
 				}
 
-				for version := 0; version < nbEvents; version++ {
+				for version := uint8(0); version < nbEvents; version++ {
 					Convey(fmt.Sprintf("Then all events are retrieved back from version %d", version), func() {
 						count := version
-						p.GetEvents("test", version, 0, func(record *persistencev1.EventRecord) {
+						p.GetEvents("test", int(version), 0, func(record *persistencev1.EventRecord) {
 							message, err := record.Payload.UnmarshalNew()
 							So(err, ShouldBeNil)
 
