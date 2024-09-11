@@ -14,7 +14,7 @@ var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Start the protoactor platform",
 	Long:  `Start the protoactor platform`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		config, err := newSystemConfig()
 		if err != nil {
 			return err

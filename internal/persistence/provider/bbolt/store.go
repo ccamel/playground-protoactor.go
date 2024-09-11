@@ -78,6 +78,7 @@ func (s *Store) PersistSnapshot(actorName string, record *persistencev1.Snapshot
 	}
 }
 
+//nolint:gosec // we need to make some dirt conversions to adapt to the interfaces
 func (s *Store) GetEvents(actorName string, eventIndexStart int, eventIndexEnd int, callback func(e *persistencev1.EventRecord)) {
 	err := s.db.View(func(tx *bolt.Tx) error {
 		actorBucket := s.
@@ -89,8 +90,8 @@ func (s *Store) GetEvents(actorName string, eventIndexStart int, eventIndexEnd i
 
 		c := actorBucket.Cursor()
 
-		for k, v := c.Seek(util.Itob(int64(eventIndexStart))); k != nil &&
-			(!(bytes.Compare(k, util.Itob(int64(eventIndexEnd))) <= 0) || (eventIndexEnd == 0)); k, v = c.Next() {
+		for k, v := c.Seek(util.Itob(uint64(eventIndexStart))); k != nil &&
+			(!(bytes.Compare(k, util.Itob(uint64(eventIndexEnd))) <= 0) || (eventIndexEnd == 0)); k, v = c.Next() {
 			buf := s.eventsBucket(tx).Get(v)
 
 			var record persistencev1.EventRecord
@@ -131,7 +132,7 @@ func (s *Store) PersistEvent(actorName string, record *persistencev1.EventRecord
 			return err
 		}
 
-		err = aggregateBucket.Put(util.Itob(int64(record.Version)), binID)
+		err = aggregateBucket.Put(util.Itob(record.Version), binID)
 		if err != nil {
 			return err
 		}

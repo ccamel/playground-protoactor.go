@@ -42,7 +42,7 @@ func (s *storeAdapter) GetSnapshot(actorName string) (snapshot interface{}, even
 		Payload: record.Payload,
 	}
 
-	return message, int(record.Version), true
+	return message, int(record.Version), true //nolint: gosec // must adapt to the interface
 }
 
 func (s *storeAdapter) Restart() {
@@ -58,7 +58,7 @@ func (s *storeAdapter) PersistSnapshot(actorName string, eventIndex int, snapsho
 	entity := &persistencev1.SnapshotRecord{
 		Id:               actorName,
 		Type:             payload.TypeUrl,
-		Version:          uint64(eventIndex),
+		Version:          uint64(eventIndex), //nolint: gosec // must adapt to the interface
 		StorageTimestamp: timestamppb.Now(),
 		Payload:          payload,
 	}
@@ -96,7 +96,7 @@ func (s *storeAdapter) PersistEvent(actorName string, eventIndex int, event prot
 		Id:               id.String(),
 		Type:             payload.TypeUrl,
 		StreamId:         actorName,
-		Version:          uint64(eventIndex),
+		Version:          uint64(eventIndex), //nolint: gosec // no overflow risk
 		StorageTimestamp: timestamppb.Now(),
 		Payload:          payload,
 	}
