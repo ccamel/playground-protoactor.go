@@ -9,6 +9,11 @@ import (
 	"github.com/rs/zerolog/log"
 	DEATH "github.com/vrecan/death"
 
+	// Register bbolt persistence provider.
+	_ "github.com/ccamel/playground-protoactor.go/internal/persistence/provider/bbolt"
+	// Register memory persistence provider.
+	_ "github.com/ccamel/playground-protoactor.go/internal/persistence/provider/memory"
+
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence/registry"
 	"github.com/ccamel/playground-protoactor.go/internal/system/core"

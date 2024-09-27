@@ -59,5 +59,7 @@ func NewStore(system *actor.ActorSystem, uri *url.URL) (persistence2.Store, erro
 }
 
 func init() {
-	registry.RegisterFactory(DBName, NewStore)
+	if err := registry.RegisterFactory(DBName, NewStore); err != nil {
+		panic(err)
+	}
 }

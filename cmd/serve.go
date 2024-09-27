@@ -2,8 +2,12 @@
 package cmd
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/spf13/cobra"
 
+	"github.com/ccamel/playground-protoactor.go/internal/persistence/registry"
 	"github.com/ccamel/playground-protoactor.go/internal/system"
 )
 
@@ -36,7 +40,7 @@ func init() {
 		&persistenceURI,
 		"persistence-uri",
 		"db:bbolt:./my-db?snapshotInterval=3",
-		"Persistence URI. Supported databases: bbolt")
+		fmt.Sprintf("Persistence URI. Supported databases: %s.", strings.Join(registry.SupportedSchemes(), ", ")))
 
 	rootCmd.AddCommand(serveCmd)
 }
