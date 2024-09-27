@@ -9,8 +9,8 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/ccamel/playground-protoactor.go/internal/actor/booklend"
-	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
+	"github.com/ccamel/playground-protoactor.go/internal/actor/user/booklend"
+	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/user/booklend/v1"
 )
 
 type Actor struct{}

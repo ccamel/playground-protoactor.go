@@ -7,13 +7,14 @@
 package booklendv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	code "google.golang.org/genproto/googleapis/rpc/code"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -335,16 +336,18 @@ func file_actor_booklend_v1_commands_proto_rawDescGZIP() []byte {
 	return file_actor_booklend_v1_commands_proto_rawDescData
 }
 
-var file_actor_booklend_v1_commands_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_actor_booklend_v1_commands_proto_goTypes = []interface{}{
-	(*RegisterBook)(nil),          // 0: actor.booklend.v1.RegisterBook
-	(*LendBook)(nil),              // 1: actor.booklend.v1.LendBook
-	(*ReturnBook)(nil),            // 2: actor.booklend.v1.ReturnBook
-	(*CommandStatus)(nil),         // 3: actor.booklend.v1.CommandStatus
-	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),   // 5: google.protobuf.Duration
-	(code.Code)(0),                // 6: google.rpc.Code
-}
+var (
+	file_actor_booklend_v1_commands_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+	file_actor_booklend_v1_commands_proto_goTypes  = []interface{}{
+		(*RegisterBook)(nil),          // 0: actor.booklend.v1.RegisterBook
+		(*LendBook)(nil),              // 1: actor.booklend.v1.LendBook
+		(*ReturnBook)(nil),            // 2: actor.booklend.v1.ReturnBook
+		(*CommandStatus)(nil),         // 3: actor.booklend.v1.CommandStatus
+		(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),   // 5: google.protobuf.Duration
+		(code.Code)(0),                // 6: google.rpc.Code
+	}
+)
 var file_actor_booklend_v1_commands_proto_depIdxs = []int32{
 	4, // 0: actor.booklend.v1.LendBook.date:type_name -> google.protobuf.Timestamp
 	5, // 1: actor.booklend.v1.LendBook.expected_duration:type_name -> google.protobuf.Duration

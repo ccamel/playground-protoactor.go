@@ -6,7 +6,7 @@ import (
 	"github.com/asynkron/protoactor-go/actor"
 	"google.golang.org/genproto/googleapis/rpc/code"
 
-	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
+	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/user/booklend/v1"
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
 )
 

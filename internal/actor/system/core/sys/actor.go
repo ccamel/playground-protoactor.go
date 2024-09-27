@@ -3,7 +3,7 @@ package sys
 import (
 	"github.com/asynkron/protoactor-go/actor"
 
-	"github.com/ccamel/playground-protoactor.go/internal/system/log"
+	"github.com/ccamel/playground-protoactor.go/internal/actor/system/log"
 )
 
 type Actor struct{}

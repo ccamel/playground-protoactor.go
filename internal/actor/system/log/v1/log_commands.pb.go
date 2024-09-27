@@ -7,10 +7,11 @@
 package logv1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -103,10 +104,12 @@ func file_system_log_v1_log_commands_proto_rawDescGZIP() []byte {
 	return file_system_log_v1_log_commands_proto_rawDescData
 }
 
-var file_system_log_v1_log_commands_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_system_log_v1_log_commands_proto_goTypes = []interface{}{
-	(*LogMessage)(nil), // 0: system.log.v1.LogMessage
-}
+var (
+	file_system_log_v1_log_commands_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+	file_system_log_v1_log_commands_proto_goTypes  = []interface{}{
+		(*LogMessage)(nil), // 0: system.log.v1.LogMessage
+	}
+)
 var file_system_log_v1_log_commands_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

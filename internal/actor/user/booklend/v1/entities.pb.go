@@ -7,12 +7,13 @@
 package booklendv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -162,12 +163,14 @@ func file_actor_booklend_v1_entities_proto_rawDescGZIP() []byte {
 	return file_actor_booklend_v1_entities_proto_rawDescData
 }
 
-var file_actor_booklend_v1_entities_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_actor_booklend_v1_entities_proto_goTypes = []interface{}{
-	(*BookEntity)(nil),            // 0: actor.booklend.v1.BookEntity
-	(*timestamppb.Timestamp)(nil), // 1: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),   // 2: google.protobuf.Duration
-}
+var (
+	file_actor_booklend_v1_entities_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+	file_actor_booklend_v1_entities_proto_goTypes  = []interface{}{
+		(*BookEntity)(nil),            // 0: actor.booklend.v1.BookEntity
+		(*timestamppb.Timestamp)(nil), // 1: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),   // 2: google.protobuf.Duration
+	}
+)
 var file_actor_booklend_v1_entities_proto_depIdxs = []int32{
 	1, // 0: actor.booklend.v1.BookEntity.date:type_name -> google.protobuf.Timestamp
 	2, // 1: actor.booklend.v1.BookEntity.expected_duration:type_name -> google.protobuf.Duration

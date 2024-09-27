@@ -14,9 +14,9 @@ import (
 	// Register memory persistence provider.
 	_ "github.com/ccamel/playground-protoactor.go/internal/persistence/provider/memory"
 
+	"github.com/ccamel/playground-protoactor.go/internal/actor/system/core"
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence/registry"
-	"github.com/ccamel/playground-protoactor.go/internal/system/core"
 )
 
 type System struct {

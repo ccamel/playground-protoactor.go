@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ccamel/playground-protoactor.go/internal/actor/system"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence/registry"
-	"github.com/ccamel/playground-protoactor.go/internal/system"
 )
 
 var persistenceURI string

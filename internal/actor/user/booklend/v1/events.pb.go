@@ -7,12 +7,13 @@
 package booklendv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -327,14 +328,16 @@ func file_actor_booklend_v1_events_proto_rawDescGZIP() []byte {
 	return file_actor_booklend_v1_events_proto_rawDescData
 }
 
-var file_actor_booklend_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_actor_booklend_v1_events_proto_goTypes = []interface{}{
-	(*BookRegistered)(nil),        // 0: actor.booklend.v1.BookRegistered
-	(*BookLent)(nil),              // 1: actor.booklend.v1.BookLent
-	(*BookReturned)(nil),          // 2: actor.booklend.v1.BookReturned
-	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
-}
+var (
+	file_actor_booklend_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_actor_booklend_v1_events_proto_goTypes  = []interface{}{
+		(*BookRegistered)(nil),        // 0: actor.booklend.v1.BookRegistered
+		(*BookLent)(nil),              // 1: actor.booklend.v1.BookLent
+		(*BookReturned)(nil),          // 2: actor.booklend.v1.BookReturned
+		(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
+	}
+)
 var file_actor_booklend_v1_events_proto_depIdxs = []int32{
 	3, // 0: actor.booklend.v1.BookRegistered.timestamp:type_name -> google.protobuf.Timestamp
 	3, // 1: actor.booklend.v1.BookLent.timestamp:type_name -> google.protobuf.Timestamp

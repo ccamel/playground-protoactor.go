@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/booklend/v1"
+	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/user/booklend/v1"
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 )
 
