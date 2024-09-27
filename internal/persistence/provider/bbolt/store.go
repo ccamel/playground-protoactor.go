@@ -39,8 +39,9 @@ func (s *Store) GetSnapshotInterval() int {
 	return s.snapshotInterval
 }
 
-func (s *Store) GetSnapshot(actorName string) (record *persistencev1.SnapshotRecord, err error) {
-	err = s.db.View(func(tx *bolt.Tx) error {
+func (s *Store) GetSnapshot(actorName string) (*persistencev1.SnapshotRecord, error) {
+	var record persistencev1.SnapshotRecord
+	err := s.db.View(func(tx *bolt.Tx) error {
 		buf := s.
 			snapshotsBucket(tx).
 			Get([]byte(actorName))
@@ -48,7 +49,6 @@ func (s *Store) GetSnapshot(actorName string) (record *persistencev1.SnapshotRec
 			return fmt.Errorf("snapshot not found for actor %s: %w", actorName, ErrNotFound)
 		}
 
-		var record persistencev1.SnapshotRecord
 		err := proto.Unmarshal(buf, &record)
 		if err != nil {
 			return err
@@ -57,7 +57,7 @@ func (s *Store) GetSnapshot(actorName string) (record *persistencev1.SnapshotRec
 		return nil
 	})
 
-	return
+	return &record, err
 }
 
 func (s *Store) PersistSnapshot(actorName string, record *persistencev1.SnapshotRecord) {
