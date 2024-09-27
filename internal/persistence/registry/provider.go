@@ -118,11 +118,7 @@ func NewProvider(system *actor.ActorSystem, uri persistence2.URI) (persistence.P
 		return nil, err
 	}
 
-	if parsedURI.Scheme != "db" {
-		return nil, fmt.Errorf("invalid persistence URI: %s", uri)
-	}
-
-	factory, err := factories.Get(parsedURI.Scheme)
+	factory, err := factories.GetFromURI(parsedURI)
 	if err != nil {
 		return nil, err
 	}

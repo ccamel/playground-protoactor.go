@@ -21,7 +21,7 @@ func (f StoreRegistry) Get(name string) (StoreFactory, error) {
 		return nil, fmt.Errorf(
 			"unsupported persistence scheme: %s. Supported schemes: %s",
 			name,
-			strings.Join(getSupportedSchemes(), ", "))
+			strings.Join(SupportedSchemes(), ", "))
 	}
 	return factory, nil
 }
@@ -34,7 +34,7 @@ func (f StoreRegistry) GetFromURI(uri *url.URL) (StoreFactory, error) {
 	return f.Get(db)
 }
 
-func getSupportedSchemes() []string {
+func SupportedSchemes() []string {
 	schemes := make([]string, 0, len(factories))
 	for scheme := range factories {
 		schemes = append(schemes, scheme)
@@ -46,6 +46,11 @@ func getSupportedSchemes() []string {
 var factories StoreRegistry = make(map[string]StoreFactory)
 
 // RegisterFactory registers a store factory given its name.
-func RegisterFactory(name string, factory func(system *actor.ActorSystem, uri *url.URL) (persistence2.Store, error)) {
+func RegisterFactory(name string, factory func(system *actor.ActorSystem, uri *url.URL) (persistence2.Store, error)) error {
+	if _, exists := factories[name]; exists {
+		return fmt.Errorf("store factory already registered: %s", name)
+	}
+
 	factories[name] = factory
+	return nil
 }
