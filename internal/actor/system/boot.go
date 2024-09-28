@@ -14,7 +14,7 @@ import (
 	// Register memory persistence provider.
 	_ "github.com/ccamel/playground-protoactor.go/internal/persistence/provider/memory"
 
-	"github.com/ccamel/playground-protoactor.go/internal/actor/system/core"
+	i "github.com/ccamel/playground-protoactor.go/internal/actor/system/init"
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence/registry"
 )
@@ -74,7 +74,7 @@ func Boot(config Config) (*System, error) {
 				).
 				SpawnMiddleware)
 
-	props := actor.PropsFromProducer(core.New()).
+	props := actor.PropsFromProducer(i.New()).
 		Configure(
 			actor.WithSupervisor(actor.RestartingSupervisorStrategy()),
 		)
