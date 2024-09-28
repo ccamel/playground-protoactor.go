@@ -5,6 +5,7 @@ import (
 
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/persistence"
+	"github.com/asynkron/protoactor-go/plugin"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -16,6 +17,7 @@ import (
 
 type Book struct {
 	persistence.Mixin
+	plugin.PassivationHolder
 	state *booklendv1.BookEntity
 }
 

@@ -2,6 +2,7 @@ package system
 
 import (
 	SYS "syscall"
+	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/actor/middleware/propagator"
@@ -14,9 +15,14 @@ import (
 	// Register memory persistence provider.
 	_ "github.com/ccamel/playground-protoactor.go/internal/persistence/provider/memory"
 
-	"github.com/ccamel/playground-protoactor.go/internal/actor/system/core"
+	i "github.com/ccamel/playground-protoactor.go/internal/actor/system/init"
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence/registry"
+)
+
+const (
+	// passivationTimeout is the duration after which an actor is passivated if it has not received any message.
+	passivationTimeout = 5 * time.Second
 )
 
 type System struct {
@@ -69,12 +75,13 @@ func Boot(config Config) (*System, error) {
 				WithItselfForwarded().
 				WithReceiverMiddleware(
 					plugin.Use(&middleware.LogInjectorPlugin{}),
+					plugin.Use(&plugin.PassivationPlugin{Duration: passivationTimeout}),
 					middleware.LifecycleLogger(),
 					middleware.PersistenceUsing(provider),
 				).
 				SpawnMiddleware)
 
-	props := actor.PropsFromProducer(core.New()).
+	props := actor.PropsFromProducer(i.New()).
 		Configure(
 			actor.WithSupervisor(actor.RestartingSupervisorStrategy()),
 		)

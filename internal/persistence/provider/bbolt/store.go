@@ -12,6 +12,7 @@ import (
 	"go.uber.org/atomic"
 	"google.golang.org/protobuf/proto"
 
+	persistence "github.com/ccamel/playground-protoactor.go/internal/persistence"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence/stream"
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 	"github.com/ccamel/playground-protoactor.go/internal/util"
@@ -32,6 +33,8 @@ type Store struct {
 	muPublish        sync.Mutex
 	subscribers      *sync.Map
 }
+
+var _ persistence.Store = (*Store)(nil)
 
 func (s *Store) Restart() {}
 
