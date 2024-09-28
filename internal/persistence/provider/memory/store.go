@@ -7,6 +7,7 @@ import (
 
 	"github.com/asynkron/protoactor-go/actor"
 
+	persistence "github.com/ccamel/playground-protoactor.go/internal/persistence"
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 )
 
@@ -22,6 +23,8 @@ type Store struct {
 
 	subscribers *sync.Map
 }
+
+var _ persistence.Store = (*Store)(nil)
 
 func (s *Store) Restart() {}
 
