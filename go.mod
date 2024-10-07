@@ -17,7 +17,7 @@ require (
 	go.etcd.io/bbolt v1.3.11
 	go.uber.org/atomic v1.11.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240314234333-6e1732d8331c
-	google.golang.org/protobuf v1.34.2
+	google.golang.org/protobuf v1.35.1
 )
 
 require (
