@@ -15,15 +15,14 @@ message SnapshotRecord {
   google.protobuf.Any payload = 6;
 }
 
+// EventRecord represents a single event in the event stream.
 message EventRecord {
   string id = 1;
   string type = 2;
   string stream_id = 3;
   uint64 version = 4;
-  uint64 sequence_number = 5;
-  repeated string tags = 6;
-  google.protobuf.Timestamp storage_timestamp = 7;
-
-  map<string, string> metadata = 8;
-  google.protobuf.Any payload = 9;
+  repeated string tags = 5;
+  google.protobuf.Timestamp timestamp = 6;
+  map<string, string> metadata = 7;
+  google.protobuf.Any payload = 8;
 }

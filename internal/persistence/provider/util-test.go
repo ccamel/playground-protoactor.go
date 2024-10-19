@@ -28,6 +28,7 @@ func DoTest(uri string, factory registry.StoreFactory) {
 			})
 
 			nbEvents := uint8(15)
+			const actorName = "test-actor"
 			Convey(fmt.Sprintf("And when inserting a %d events", nbEvents), func() {
 				records := make([]*persistencev1.EventRecord, nbEvents)
 
@@ -44,23 +45,23 @@ func DoTest(uri string, factory registry.StoreFactory) {
 
 					id := fmt.Sprintf("%d", i)
 					records[i] = &persistencev1.EventRecord{
-						Id:               id,
-						Type:             payload.TypeUrl,
-						StreamId:         "foo",
-						Version:          uint64(i),
-						StorageTimestamp: timestamppb.Now(),
-						Payload:          payload,
+						Id:        id,
+						Type:      payload.TypeUrl,
+						StreamId:  actorName,
+						Version:   uint64(i),
+						Timestamp: timestamppb.Now(),
+						Payload:   payload,
 					}
 				}
 
 				for _, record := range records {
-					p.PersistEvent("test", record)
+					p.PersistEvent(actorName, record)
 				}
 
 				for version := uint8(0); version < nbEvents; version++ {
 					Convey(fmt.Sprintf("Then all events are retrieved back from version %d", version), func() {
 						count := version
-						p.GetEvents("test", int(version), 0, func(record *persistencev1.EventRecord) {
+						p.GetEvents(actorName, int(version), 0, func(record *persistencev1.EventRecord) {
 							message, err := record.Payload.UnmarshalNew()
 							So(err, ShouldBeNil)
 

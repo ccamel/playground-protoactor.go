@@ -112,13 +112,13 @@ func (s *Store) GetEvents(actorName string, eventIndexStart int, eventIndexEnd i
 	}
 }
 
-func (s *Store) PersistEvent(actorName string, record *persistencev1.EventRecord) {
+func (s *Store) PersistEvent(_ string, record *persistencev1.EventRecord) {
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		// store in the aggregate bucket the version number and the id of the record in the
 		// events bucket.
 		aggregateBucket, err := s.
 			eventsBucket(tx).
-			CreateBucketIfNotExists([]byte(actorName))
+			CreateBucketIfNotExists([]byte(record.StreamId))
 		if err != nil {
 			return err
 		}
@@ -127,8 +127,6 @@ func (s *Store) PersistEvent(actorName string, record *persistencev1.EventRecord
 		if err != nil {
 			return err
 		}
-
-		record.SequenceNumber, _ = s.eventsBucket(tx).NextSequence()
 
 		buf, err := proto.Marshal(record)
 		if err != nil {

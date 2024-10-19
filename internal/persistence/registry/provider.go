@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 
@@ -93,13 +94,16 @@ func (s *storeAdapter) PersistEvent(actorName string, eventIndex int, event prot
 
 	id := util.MakeULID()
 	entity := &persistencev1.EventRecord{
-		Id:               id.String(),
-		Type:             payload.TypeUrl,
-		StreamId:         actorName,
-		Version:          uint64(eventIndex), //nolint: gosec // no overflow risk
-		StorageTimestamp: timestamppb.Now(),
-		Payload:          payload,
+		Id:        id.String(),
+		Type:      payload.TypeUrl,
+		StreamId:  actorName,
+		Version:   uint64(eventIndex), //nolint: gosec // no overflow risk
+		Timestamp: timestamppb.Now(),
+		Payload:   payload,
 	}
+
+	j, _ := json.Marshal(entity)
+	log.Debug().RawJSON("event", j).Msg("Persisting event")
 
 	s.store.PersistEvent(actorName, entity)
 }
