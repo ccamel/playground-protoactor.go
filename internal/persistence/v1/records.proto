@@ -9,7 +9,7 @@ message SnapshotRecord {
   string id = 1;
   string type = 2;
   uint64 version = 3;
-  google.protobuf.Timestamp storage_timestamp = 4;
+  google.protobuf.Timestamp timestamp = 4;
 
   map<string, string> metadata = 5;
   google.protobuf.Any payload = 6;
