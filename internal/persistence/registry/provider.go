@@ -57,11 +57,11 @@ func (s *storeAdapter) PersistSnapshot(actorName string, eventIndex int, snapsho
 	}
 
 	entity := &persistencev1.SnapshotRecord{
-		Id:               actorName,
-		Type:             payload.TypeUrl,
-		Version:          uint64(eventIndex), //nolint: gosec // must adapt to the interface
-		StorageTimestamp: timestamppb.Now(),
-		Payload:          payload,
+		Id:        actorName,
+		Type:      payload.TypeUrl,
+		Version:   uint64(eventIndex), //nolint: gosec // must adapt to the interface
+		Timestamp: timestamppb.Now(),
+		Payload:   payload,
 	}
 
 	s.store.PersistSnapshot(actorName, entity)
