@@ -44,7 +44,7 @@ lint-proto:
 		-v `pwd`:/work \
 		-w /work \
 		${DOCKER_IMAGE_BUF} \
-		generate --verbose
+		lint
 
 .PHONY: format
 format: format-go
