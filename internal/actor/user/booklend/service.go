@@ -57,8 +57,14 @@ func getOrSpawn(context actor.Context, name string) (*actor.PID, error) {
 }
 
 func NewService() *actor.Props {
+	supervisor := actor.NewOneForOneStrategy(10, 1000, func(reason interface{}) actor.Directive {
+		return actor.RestartDirective
+	})
+
 	return actor.
-		PropsFromProducer(func() actor.Actor {
-			return &Service{}
-		})
+		PropsFromProducer(
+			func() actor.Actor {
+				return &Service{}
+			},
+			actor.WithSupervisor(supervisor))
 }
