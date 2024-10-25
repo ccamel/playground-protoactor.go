@@ -2,7 +2,7 @@
 
 # Docker images
 DOCKER_IMAGE_GOLANG	 = golang:1.23-alpine3.20
-DOCKER_IMAGE_BUF     = bufbuild/buf:1.28.1
+DOCKER_IMAGE_BUF     = bufbuild/buf:1.45.0
 
 default: build
 
@@ -44,7 +44,7 @@ lint-proto:
 		-v `pwd`:/work \
 		-w /work \
 		${DOCKER_IMAGE_BUF} \
-		generate --verbose
+		lint
 
 .PHONY: format
 format: format-go

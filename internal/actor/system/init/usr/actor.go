@@ -11,6 +11,8 @@ import (
 
 	"github.com/ccamel/playground-protoactor.go/internal/actor/user/booklend"
 	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/user/booklend/v1"
+	"github.com/ccamel/playground-protoactor.go/internal/actor/user/manager"
+	eventsourcingv1 "github.com/ccamel/playground-protoactor.go/internal/eventsourcing/v1"
 )
 
 type Actor struct{}
@@ -18,14 +20,14 @@ type Actor struct{}
 func (state *Actor) Receive(context actor.Context) {
 	switch context.Message().(type) {
 	case *actor.Started:
-		pid, _ := context.SpawnNamed(booklend.NewService(), "book_lend")
+		pid, _ := context.SpawnNamed(manager.Props(booklend.Props()), "book_lend")
 
 		bookID := "207b6be6-a7e4-4cc7-a692-b51e79de0460" // uuid.New().String()
 
 		res, err := context.RequestFuture(pid, &booklendv1.RegisterBook{
-			BookId: bookID,
-			Title:  "The Lord of the Rings",
-			Isbn:   "0-618-15396-9",
+			Base:  &eventsourcingv1.CommandBase{AggregateId: bookID},
+			Title: "The Lord of the Rings",
+			Isbn:  "0-618-15396-9",
 		}, 5*time.Second).Result()
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to create book")
@@ -33,7 +35,7 @@ func (state *Actor) Receive(context actor.Context) {
 			return
 		}
 
-		if res.(*booklendv1.CommandStatus).Code != code.Code_OK {
+		if res.(*eventsourcingv1.CommandStatus).Code != code.Code_OK {
 			log.Warn().Interface("event", res).Msgf("error")
 
 			return
@@ -42,7 +44,7 @@ func (state *Actor) Receive(context actor.Context) {
 		log.Info().Interface("event", res).Msgf("ok")
 
 		res, err = context.RequestFuture(pid, &booklendv1.LendBook{
-			BookId:           bookID,
+			Base:             &eventsourcingv1.CommandBase{AggregateId: bookID},
 			Borrower:         "John Doe",
 			Date:             timestamppb.Now(),
 			ExpectedDuration: durationpb.New(90 * 24 * time.Hour),
@@ -54,7 +56,7 @@ func (state *Actor) Receive(context actor.Context) {
 			return
 		}
 
-		if res.(*booklendv1.CommandStatus).Code != code.Code_OK {
+		if res.(*eventsourcingv1.CommandStatus).Code != code.Code_OK {
 			log.Warn().Interface("event", res).Msgf("error")
 
 			return
@@ -63,8 +65,8 @@ func (state *Actor) Receive(context actor.Context) {
 		log.Info().Interface("event", res).Msgf("ok")
 
 		res, err = context.RequestFuture(pid, &booklendv1.ReturnBook{
-			BookId: bookID,
-			Date:   timestamppb.Now(),
+			Base: &eventsourcingv1.CommandBase{AggregateId: bookID},
+			Date: timestamppb.Now(),
 		}, 5*time.Second).Result()
 
 		if err != nil {
@@ -73,7 +75,7 @@ func (state *Actor) Receive(context actor.Context) {
 			return
 		}
 
-		if res.(*booklendv1.CommandStatus).Code != code.Code_OK {
+		if res.(*eventsourcingv1.CommandStatus).Code != code.Code_OK {
 			log.Warn().Interface("event", res).Msgf("error")
 
 			return

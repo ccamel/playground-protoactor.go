@@ -2,7 +2,7 @@ version: v1
 managed:
   enabled: true
   go_package_prefix:
-    default: github.com/ccamel/playground-protoactor.go/proto
+    default: github.com/ccamel/playground-protoactor.go/internal
     except:
       - buf.build/googleapis/googleapis
 plugins:

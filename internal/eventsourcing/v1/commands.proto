@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package eventsourcing.v1;
+
+import "google/rpc/code.proto";
+
+message CommandBase {
+  string aggregate_id = 1;
+}
+
+message CommandStatus {
+  google.rpc.Code code = 1;
+
+  string message = 2;
+}
