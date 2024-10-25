@@ -12,6 +12,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/user/booklend/v1"
+	eventsourcingv1 "github.com/ccamel/playground-protoactor.go/internal/eventsourcing/v1"
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 )
 
@@ -22,12 +23,7 @@ type Book struct {
 }
 
 func (a *Book) Receive(context actor.Context) {
-	a.handleMessage(context, context.Message())
-}
-
-//nolint:funlen // relax
-func (a *Book) handleMessage(context actor.Context, message interface{}) {
-	switch msg := message.(type) {
+	switch msg := context.Message().(type) {
 	case *actor.Started:
 		a.state = &booklendv1.BookEntity{}
 	case *actor.ReceiveTimeout:
@@ -41,115 +37,119 @@ func (a *Book) handleMessage(context actor.Context, message interface{}) {
 		}
 
 		a.state = entity
+	case eventsourcingv1.Command:
+		status, event := a.handleCommand(msg)
+		// save sender - issue https://github.com/asynkron/protoactor-go/issues/256
+		sender := context.Sender()
+		a.PersistReceive(event.(proto.Message))
+		a.handleEvent(event)
+
+		if status != nil {
+			context.Send(sender, status)
+		}
+	case eventsourcingv1.Event:
+		a.handleEvent(msg)
+	}
+}
+
+//nolint:funlen
+func (a *Book) handleCommand(cmd eventsourcingv1.Command) (*eventsourcingv1.CommandStatus, eventsourcingv1.Event) {
+	switch cmd := cmd.(type) {
 	case *booklendv1.RegisterBook:
 		if a.state.Id != "" {
-			context.Respond(&booklendv1.CommandStatus{
+			return &eventsourcingv1.CommandStatus{
 				Code:    code.Code_ALREADY_EXISTS,
-				Message: fmt.Sprintf("book with id %s already exists.", msg.BookId),
-			})
-
-			break
+				Message: fmt.Sprintf("book with id %s already exists.", cmd.Base.AggregateId),
+			}, nil
 		}
 
-		a.applyAndReply(
-			context,
-			&booklendv1.CommandStatus{
+		return &eventsourcingv1.CommandStatus{
 				Code:    code.Code_OK,
-				Message: fmt.Sprintf("book registered with id %s", msg.BookId),
-			},
-			&booklendv1.BookRegistered{
-				Id:        msg.BookId,
+				Message: fmt.Sprintf("book registered with id %s", cmd.Base.AggregateId),
+			}, &booklendv1.BookRegistered{
+				Base:      &eventsourcingv1.EventBase{Id: cmd.Base.AggregateId},
 				Timestamp: timestamppb.Now(),
-				Title:     msg.Title,
-				Isbn:      msg.Isbn,
-			})
+				Title:     cmd.Title,
+				Isbn:      cmd.Isbn,
+			}
 	case *booklendv1.LendBook:
-		if msg.Borrower == "" {
-			context.Respond(&booklendv1.CommandStatus{
+		if cmd.Borrower == "" {
+			return &eventsourcingv1.CommandStatus{
 				Code:    code.Code_INVALID_ARGUMENT,
-				Message: fmt.Sprintf("command LendBook for book %s shall specify a borrower.", msg.BookId),
-			})
-
-			break
+				Message: fmt.Sprintf("command LendBook for book %s shall specify a borrower.", cmd.Base.AggregateId),
+			}, nil
 		}
 
 		if a.state.Borrower != "" {
-			context.Respond(&booklendv1.CommandStatus{
+			return &eventsourcingv1.CommandStatus{
 				Code:    code.Code_INVALID_ARGUMENT,
-				Message: fmt.Sprintf("book with id %s is already lent.", msg.BookId),
-			})
-
-			break
+				Message: fmt.Sprintf("book with id %s is already lent.", cmd.Base.AggregateId),
+			}, nil
 		}
 
-		a.applyAndReply(
-			context,
-			&booklendv1.CommandStatus{
+		return &eventsourcingv1.CommandStatus{
 				Code:    code.Code_OK,
-				Message: fmt.Sprintf("book registered with id %s", msg.BookId),
-			},
-			&booklendv1.BookLent{
-				Id:               msg.BookId,
+				Message: fmt.Sprintf("book lent with id %s", cmd.Base.AggregateId),
+			}, &booklendv1.BookLent{
+				Base:             &eventsourcingv1.EventBase{Id: cmd.Base.AggregateId},
 				Timestamp:        timestamppb.Now(),
-				Borrower:         msg.Borrower,
-				Date:             msg.Date,
-				ExpectedDuration: msg.ExpectedDuration,
-			})
+				Borrower:         cmd.Borrower,
+				Date:             cmd.Date,
+				ExpectedDuration: cmd.ExpectedDuration,
+			}
 	case *booklendv1.ReturnBook:
 		if a.state.Borrower == "" {
-			context.Respond(&booklendv1.CommandStatus{
+			return &eventsourcingv1.CommandStatus{
 				Code:    code.Code_INVALID_ARGUMENT,
-				Message: fmt.Sprintf("book with id %s has not been lent.", msg.BookId),
-			})
-
-			break
+				Message: fmt.Sprintf("book with id %s has not been lent.", cmd.Base.AggregateId),
+			}, nil
 		}
 
-		if !msg.Date.IsValid() {
-			context.Respond(&booklendv1.CommandStatus{
+		if !cmd.Date.IsValid() {
+			return &eventsourcingv1.CommandStatus{
 				Code:    code.Code_UNKNOWN,
-				Message: fmt.Sprintf("date %s is invalid", msg.Date.String()),
-			})
-
-			break
+				Message: fmt.Sprintf("date %s is invalid", cmd.Date.String()),
+			}, nil
 		}
-		t2 := msg.Date.AsTime()
+		t2 := cmd.Date.AsTime()
 
 		if !a.state.Date.IsValid() {
-			context.Respond(&booklendv1.CommandStatus{
+			return &eventsourcingv1.CommandStatus{
 				Code:    code.Code_UNKNOWN,
 				Message: fmt.Sprintf("date %s is invalid", a.state.Date.String()),
-			})
-
-			break
+			}, nil
 		}
 		t1 := a.state.Date.AsTime()
 
 		if t2.Before(t1) {
-			context.Respond(&booklendv1.CommandStatus{
+			return &eventsourcingv1.CommandStatus{
 				Code:    code.Code_INVALID_ARGUMENT,
-				Message: fmt.Sprintf("book with id %s cannot be returned before being lent", msg.BookId),
-			})
-
-			break
+				Message: fmt.Sprintf("book with id %s cannot be returned before being lent", cmd.Base.AggregateId),
+			}, nil
 		}
 
-		a.applyAndReply(
-			context,
-			&booklendv1.CommandStatus{
+		return &eventsourcingv1.CommandStatus{
 				Code:    code.Code_OK,
-				Message: fmt.Sprintf("book registered with id %s", msg.BookId),
-			},
-			&booklendv1.BookReturned{
-				Id:           msg.BookId,
+				Message: fmt.Sprintf("book returned with id %s", cmd.Base.AggregateId),
+			}, &booklendv1.BookReturned{
+				Base:         &eventsourcingv1.EventBase{Id: cmd.Base.AggregateId},
 				Timestamp:    timestamppb.Now(),
 				By:           a.state.Borrower,
-				Date:         msg.Date,
+				Date:         cmd.Date,
 				LentDuration: durationpb.New(t2.Sub(t1)),
-			})
+			}
+	}
 
+	return &eventsourcingv1.CommandStatus{
+		Code:    code.Code_INVALID_ARGUMENT,
+		Message: fmt.Sprintf("unsupported command %T received", cmd),
+	}, nil
+}
+
+func (a *Book) handleEvent(msg eventsourcingv1.Event) {
+	switch msg := msg.(type) {
 	case *booklendv1.BookRegistered:
-		a.state.Id = msg.Id
+		a.state.Id = msg.Base.Id
 		a.state.Isbn = msg.Isbn
 		a.state.Title = msg.Title
 
@@ -163,21 +163,7 @@ func (a *Book) handleMessage(context actor.Context, message interface{}) {
 	}
 }
 
-func (a *Book) applyAndReply(context actor.Context, response proto.Message, events ...proto.Message) {
-	// save sender - issue https://github.com/asynkron/protoactor-go/issues/256
-	sender := context.Sender()
-
-	for _, event := range events {
-		a.handleMessage(context, event)
-		a.PersistReceive(event)
-	}
-
-	if response != nil {
-		context.Send(sender, response)
-	}
-}
-
-func newAggregate() *actor.Props {
+func Props() *actor.Props {
 	return actor.
 		PropsFromProducer(func() actor.Actor {
 			return &Book{}

@@ -1,31 +1,25 @@
 syntax = "proto3";
 
-package actor.booklend.v1;
+package actor.user.booklend.v1;
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "google/rpc/code.proto";
+import "eventsourcing/v1/commands.proto";
 
 message RegisterBook {
-  string book_id = 1;
+  eventsourcing.v1.CommandBase base = 1;
   string title = 2;
   string isbn = 3;
 }
 
 message LendBook {
-  string book_id = 1;
+  eventsourcing.v1.CommandBase base = 1;
   string borrower = 2;
   google.protobuf.Timestamp date = 3;
   google.protobuf.Duration expected_duration = 4;
 }
 
 message ReturnBook {
-  string book_id = 1;
+  eventsourcing.v1.CommandBase base = 1;
   google.protobuf.Timestamp date = 3;
-}
-
-message CommandStatus {
-  google.rpc.Code code = 1;
-
-  string message = 2;
 }

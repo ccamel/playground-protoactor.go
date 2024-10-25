@@ -1,19 +1,20 @@
 syntax = "proto3";
 
-package actor.booklend.v1;
+package actor.user.booklend.v1;
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
+import "eventsourcing/v1/events.proto";
 
 message BookRegistered {
-  string id = 1;
+  eventsourcing.v1.EventBase base = 1;
   google.protobuf.Timestamp timestamp = 2;
   string title = 3;
   string isbn = 4;
 }
 
 message BookLent {
-  string id = 1;
+  eventsourcing.v1.EventBase base = 1;
   google.protobuf.Timestamp timestamp = 2;
   string borrower = 3;
   google.protobuf.Timestamp date = 4;
@@ -21,7 +22,7 @@ message BookLent {
 }
 
 message BookReturned {
-  string id = 1;
+  eventsourcing.v1.EventBase base = 1;
   google.protobuf.Timestamp timestamp = 2;
   string by = 3;
   google.protobuf.Timestamp date = 4;

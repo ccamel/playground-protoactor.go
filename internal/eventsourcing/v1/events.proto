@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package eventsourcing.v1;
+
+message EventBase {
+  string id = 1;
+}

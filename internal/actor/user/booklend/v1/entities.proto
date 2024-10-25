@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package actor.booklend.v1;
+package actor.user.booklend.v1;
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
