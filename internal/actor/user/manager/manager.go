@@ -14,6 +14,7 @@ type Manager struct {
 	middleware.LogAwareHolder
 
 	entityProps *actor.Props
+	aggregates  map[string]*actor.PID
 }
 
 func (a *Manager) Receive(context actor.Context) {
@@ -21,6 +22,8 @@ func (a *Manager) Receive(context actor.Context) {
 	case eventsourcingv1.Command:
 		a.doCommand(context, msg)
 		return
+	case *actor.Terminated:
+		delete(a.aggregates, msg.Who.Id)
 	case actor.SystemMessage, actor.AutoReceiveMessage:
 		// ignore
 	default:
@@ -49,13 +52,19 @@ func (a *Manager) doCommand(context actor.Context, cmd eventsourcingv1.Command) 
 
 func (a *Manager) getOrSpawn(context actor.Context, name string) (*actor.PID, error) {
 	id := context.Self().Id + "/" + name
-	for _, pid := range context.Children() {
-		if pid.GetId() == id {
-			return pid, nil
-		}
+
+	if pid, ok := a.aggregates[id]; ok {
+		return pid, nil
 	}
 
-	return context.SpawnNamed(a.entityProps, name)
+	pid, err := context.SpawnNamed(a.entityProps, name)
+	if err != nil {
+		return nil, err
+	}
+	context.Watch(pid)
+	a.aggregates[id] = pid
+
+	return pid, nil
 }
 
 func Props(entityProps *actor.Props) *actor.Props {
@@ -68,6 +77,7 @@ func Props(entityProps *actor.Props) *actor.Props {
 			func() actor.Actor {
 				return &Manager{
 					entityProps: entityProps,
+					aggregates:  make(map[string]*actor.PID),
 				}
 			},
 			actor.WithSupervisor(supervisor))
