@@ -8,29 +8,19 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func isType[T any](typ any) bool {
+	_, ok := typ.(*T)
+	return ok
+}
+
 // LifecycleLogger is a middleware which logs lifecycle messages (started, stopped...).
 func LifecycleLogger() actor.ReceiverMiddleware {
 	return func(next actor.ReceiverFunc) actor.ReceiverFunc {
 		return func(context actor.ReceiverContext, env *actor.MessageEnvelope) {
-			accepted := func() bool {
-				if _, ok := env.Message.(*actor.Started); ok {
-					return true
-				}
-
-				if _, ok := env.Message.(*actor.Stopping); ok {
-					return true
-				}
-
-				if _, ok := env.Message.(*actor.Stopped); ok {
-					return true
-				}
-
-				if _, ok := env.Message.(*actor.Restarting); ok {
-					return true
-				}
-
-				return false
-			}()
+			accepted := isType[actor.Started](env.Message) ||
+				isType[actor.Stopping](env.Message) ||
+				isType[actor.Stopped](env.Message) ||
+				isType[actor.Restarting](env.Message)
 
 			if accepted {
 				t := strings.TrimLeft(fmt.Sprintf("%T", env.Message), "*")

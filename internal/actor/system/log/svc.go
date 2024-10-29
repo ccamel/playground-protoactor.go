@@ -24,7 +24,7 @@ func (a *LoggerActor) Receive(context actor.Context) {
 	case *logv1.LogMessage:
 		_, err := a.out.Write(msg.Message)
 		if err != nil {
-			fmt.Println(err) //nolint:forbidigo // common pattern when using cobra library
+			fmt.Println(err) //nolint:forbidigo // this is what we want
 		}
 	}
 }
