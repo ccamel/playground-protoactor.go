@@ -55,7 +55,9 @@ func (l *loggerActor) Write(p []byte) (n int, err error) {
 			l.buf.WriteByte(b)
 		} else {
 			pid := l.root.NewLocalPID("init/sys/logger")
-			l.root.Root.Send(pid, &logv1.LogMessage{Message: l.buf.Bytes()})
+			messageBytes := make([]byte, l.buf.Len())
+			copy(messageBytes, l.buf.Bytes())
+			l.root.Root.Send(pid, &logv1.LogMessage{Message: messageBytes})
 			l.buf.Reset()
 		}
 	}
