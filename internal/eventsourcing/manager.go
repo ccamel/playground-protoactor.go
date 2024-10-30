@@ -1,4 +1,4 @@
-package manager
+package eventsourcing
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 	"github.com/ccamel/playground-protoactor.go/internal/middleware"
 )
 
+// Manager is the actor responsible for managing the lifecycle of the aggregates.
 type Manager struct {
 	middleware.LogAwareHolder
 
@@ -67,7 +68,9 @@ func (a *Manager) getOrSpawn(context actor.Context, name string) (*actor.PID, er
 	return pid, nil
 }
 
-func Props(entityProps *actor.Props) *actor.Props {
+// ManagerProps returns the properties to spawn a new Aggregate Manager actor.
+// The given entityProps is the properties to spawn a new Aggregate actor.
+func ManagerProps(entityProps *actor.Props) *actor.Props {
 	supervisor := actor.NewOneForOneStrategy(10, 1000, func(_ interface{}) actor.Directive {
 		return actor.RestartDirective
 	})

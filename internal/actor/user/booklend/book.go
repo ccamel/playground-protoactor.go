@@ -163,9 +163,6 @@ func (a *Book) handleEvent(msg eventsourcingv1.Event) {
 	}
 }
 
-func Props() *actor.Props {
-	return actor.
-		PropsFromProducer(func() actor.Actor {
-			return &Book{}
-		})
+func New() actor.Actor {
+	return &Book{}
 }
