@@ -5,15 +5,18 @@ import (
 
 	"github.com/ccamel/playground-protoactor.go/internal/actor/system/init/sys"
 	"github.com/ccamel/playground-protoactor.go/internal/actor/system/init/usr"
+	"github.com/ccamel/playground-protoactor.go/internal/middleware"
 )
 
-type Actor struct{}
+type Actor struct {
+	middleware.SpawnAwareMixin
+}
 
 func (a *Actor) Receive(context actor.Context) {
 	switch context.Message().(type) {
 	case *actor.Started:
-		_, _ = context.SpawnNamed(actor.PropsFromProducer(usr.New()), "usr")
-		_, _ = context.SpawnNamed(actor.PropsFromProducer(sys.New()), "sys")
+		a.SpawnNamedOrDie(context, actor.PropsFromProducer(sys.New()), "sys")
+		a.SpawnNamedOrDie(context, actor.PropsFromProducer(usr.New()), "usr")
 	case *actor.Stopping:
 	case *actor.Stopped:
 	case *actor.Restarting:

@@ -1,87 +1,20 @@
 package usr
 
 import (
-	"time"
-
 	"github.com/asynkron/protoactor-go/actor"
-	"github.com/rs/zerolog/log"
-	"google.golang.org/genproto/googleapis/rpc/code"
-	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/ccamel/playground-protoactor.go/internal/actor/user/booklend"
-	booklendv1 "github.com/ccamel/playground-protoactor.go/internal/actor/user/booklend/v1"
-	"github.com/ccamel/playground-protoactor.go/internal/actor/user/manager"
-	eventsourcingv1 "github.com/ccamel/playground-protoactor.go/internal/eventsourcing/v1"
+	"github.com/ccamel/playground-protoactor.go/internal/app"
+	"github.com/ccamel/playground-protoactor.go/internal/middleware"
 )
 
-type Actor struct{}
+type Actor struct {
+	middleware.SpawnAwareMixin
+}
 
 func (state *Actor) Receive(context actor.Context) {
 	switch context.Message().(type) {
 	case *actor.Started:
-		pid, _ := context.SpawnNamed(manager.Props(booklend.Props()), "book_lend")
-
-		bookID := "207b6be6-a7e4-4cc7-a692-b51e79de0460" // uuid.New().String()
-
-		res, err := context.RequestFuture(pid, &booklendv1.RegisterBook{
-			Base:  &eventsourcingv1.CommandBase{AggregateId: bookID},
-			Title: "The Lord of the Rings",
-			Isbn:  "0-618-15396-9",
-		}, 5*time.Second).Result()
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to create book")
-
-			return
-		}
-
-		if res.(*eventsourcingv1.CommandStatus).Code != code.Code_OK {
-			log.Warn().Interface("event", res).Msgf("error")
-
-			return
-		}
-
-		log.Info().Interface("event", res).Msgf("ok")
-
-		res, err = context.RequestFuture(pid, &booklendv1.LendBook{
-			Base:             &eventsourcingv1.CommandBase{AggregateId: bookID},
-			Borrower:         "John Doe",
-			Date:             timestamppb.Now(),
-			ExpectedDuration: durationpb.New(90 * 24 * time.Hour),
-		}, 5*time.Second).Result()
-
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to lend book")
-
-			return
-		}
-
-		if res.(*eventsourcingv1.CommandStatus).Code != code.Code_OK {
-			log.Warn().Interface("event", res).Msgf("error")
-
-			return
-		}
-
-		log.Info().Interface("event", res).Msgf("ok")
-
-		res, err = context.RequestFuture(pid, &booklendv1.ReturnBook{
-			Base: &eventsourcingv1.CommandBase{AggregateId: bookID},
-			Date: timestamppb.Now(),
-		}, 5*time.Second).Result()
-
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to return book")
-
-			return
-		}
-
-		if res.(*eventsourcingv1.CommandStatus).Code != code.Code_OK {
-			log.Warn().Interface("event", res).Msgf("error")
-
-			return
-		}
-
-		log.Info().Interface("event", res).Msgf("ok")
+		state.SpawnNamedOrDie(context, app.Props(), "app_mgr")
 	case *actor.Stopping:
 	case *actor.Stopped:
 	case *actor.Restarting:

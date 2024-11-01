@@ -10,6 +10,8 @@ import (
 	"github.com/rs/zerolog/log"
 	DEATH "github.com/vrecan/death"
 
+	// Register booklend app.
+	_ "github.com/ccamel/playground-protoactor.go/internal/actor/user/booklend"
 	// Register bbolt persistence provider.
 	_ "github.com/ccamel/playground-protoactor.go/internal/persistence/provider/bbolt"
 	// Register memory persistence provider.
@@ -75,6 +77,7 @@ func Boot(config Config) (*System, error) {
 				WithItselfForwarded().
 				WithReceiverMiddleware(
 					plugin.Use(&middleware.LogInjectorPlugin{}),
+					plugin.Use(&middleware.SpawnInjectorPlugin{}),
 					plugin.Use(&plugin.PassivationPlugin{Duration: passivationTimeout}),
 					middleware.LifecycleLogger(),
 					middleware.PersistenceUsing(provider),
