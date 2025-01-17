@@ -61,7 +61,7 @@ flowchart LR
     A(["init/usr/book_lend"])
     B(["init/usr/book_lend/_id"])
 
-    es[(Persistence\nStore)]
+    es[(Persistence<br>Store)]
 
     O --> | RegisterBook _id | A
     A -.-> | spawn _id | B
