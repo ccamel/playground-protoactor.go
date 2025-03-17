@@ -2,7 +2,6 @@ package bbolt
 
 import (
 	"fmt"
-	"os"
 	"path"
 	"testing"
 
@@ -13,8 +12,7 @@ import (
 
 func TestStore(t *testing.T) {
 	Convey("Under temporary directory", t, func(_ C) {
-		dir, err := os.MkdirTemp("", "test-db-")
-		So(err, ShouldBeNil)
+		dir := t.TempDir()
 
 		Convey("Given a NewStore", func() {
 			uri := fmt.Sprintf("db:bbolt:%s?snapshotInterval=%d", path.Join(dir, "event-store.bolt.db"), 5)
