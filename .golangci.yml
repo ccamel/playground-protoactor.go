@@ -47,10 +47,10 @@ linters:
     - promlinter
     - revive
     - stylecheck
-    - tenv
     - tparallel
     - unconvert
     - unparam
+    - usetesting
     - whitespace
 
 linters-settings:
@@ -72,10 +72,9 @@ linters-settings:
     scope: declarations
   lll:
     line-length: 140
-output:
-  uniq-by-line: false
 
 issues:
+  uniq-by-line: false
   max-issues-per-linter: 0
   max-same-issues: 0
   exclude-rules:
@@ -100,7 +99,7 @@ issues:
     - path: "_test\\.go"
       linters:
         - gosec
-      exclude: "G115"
+      text: "G115"
     - path: "_test\\.go"
       linters:
         - revive
