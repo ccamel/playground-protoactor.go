@@ -78,4 +78,4 @@ $(GOPATH)/bin/protoc:
 
 ./bin/golangci-lint:
 	@echo "📦 installing $(notdir $@)"
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.32.2
+	 curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.0.2

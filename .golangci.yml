@@ -1,39 +1,31 @@
-run:
-  timeout: 10m
-
+version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - typecheck
-    - unused
     - asciicheck
     - bidichk
     - bodyclose
     - contextcheck
+    - copyloopvar
     - cyclop
     - dupl
     - durationcheck
+    - errcheck
     - errname
     - errorlint
     - exhaustive
-    - copyloopvar
-    - funlen
     - forbidigo
-    - gci
+    - funlen
     - gocognit
     - goconst
     - gocritic
     - gocyclo
     - godot
-    - goimports
     - gomodguard
     - goprintffuncname
     - gosec
+    - govet
+    - ineffassign
     - lll
     - makezero
     - nakedret
@@ -46,61 +38,84 @@ linters:
     - predeclared
     - promlinter
     - revive
-    - stylecheck
+    - staticcheck
     - tparallel
     - unconvert
     - unparam
+    - unused
     - usetesting
     - whitespace
-
-linters-settings:
-  gci:
-    sections:
-      - standard
-      - default
-      - blank
-      - dot
-      - prefix(github.com/ccamel/playground-protoactor.go)
-    custom-order: true
-  cyclop:
-    max-complexity: 20
-    skip-tests: true
-  funlen:
-    statements: 60
-    lines: 70
-  godot:
-    scope: declarations
-  lll:
-    line-length: 140
-
+  settings:
+    cyclop:
+      max-complexity: 20
+    funlen:
+      lines: 70
+      statements: 60
+    godot:
+      scope: declarations
+    lll:
+      line-length: 140
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - lll
+        source: ^//\s*go:generate\s
+      - linters:
+          - godot
+        source: (noinspection|TODO)
+      - linters:
+          - gocritic
+        source: //noinspection
+      - linters:
+          - bodyclose
+          - dupl
+          - funlen
+          - goconst
+          - noctx
+          - unused
+          - wrapcheck
+        path: _test\.go
+      - linters:
+          - gosec
+        path: _test\.go
+        text: G115
+      - linters:
+          - revive
+        path: _test\.go
+        text: 'dot-imports:'
+      - linters:
+          - cyclop
+        path: (.+)_test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
-  uniq-by-line: false
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-rules:
-    - source: "^//\\s*go:generate\\s"
-      linters:
-        - lll
-    - source: "(noinspection|TODO)"
-      linters:
-        - godot
-    - source: "//noinspection"
-      linters:
-        - gocritic
-    - path: "_test\\.go"
-      linters:
-        - bodyclose
-        - dupl
-        - funlen
-        - goconst
-        - noctx
-        - unused
-        - wrapcheck
-    - path: "_test\\.go"
-      linters:
-        - gosec
-      text: "G115"
-    - path: "_test\\.go"
-      linters:
-        - revive
-      text: "dot-imports:"
+  uniq-by-line: false
+formatters:
+  enable:
+    - gci
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - blank
+        - dot
+        - prefix(github.com/ccamel/playground-protoactor.go)
+      custom-order: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
