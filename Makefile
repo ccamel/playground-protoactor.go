@@ -79,6 +79,11 @@ build: deps ## Build the project
 	$(call echo_msg, 🛠, Building, project, ...)
 	@go build -o $(BINARY_NAME) .
 
+.PHONY: test
+test: deps ## Run tests
+	$(call echo_msg, 🛠, Building, project, ...)
+	@go test -v ./...
+
 .PHONY: lint
 lint: lint-proto lint-go ## Lint files
 
