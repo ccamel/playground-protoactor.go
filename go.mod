@@ -2,8 +2,6 @@ module github.com/ccamel/playground-protoactor.go
 
 go 1.23
 
-toolchain go1.23.1
-
 require (
 	github.com/asynkron/protoactor-go v0.0.0-20240822202345-3c0e61ca19c9
 	github.com/google/uuid v1.6.0
@@ -12,7 +10,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/smartystreets/goconvey v1.8.1
 	github.com/spf13/cobra v1.9.1
-	github.com/spf13/viper v1.20.0
+	github.com/spf13/viper v1.20.1
 	github.com/vrecan/death v3.0.1+incompatible
 	go.etcd.io/bbolt v1.4.0
 	go.uber.org/atomic v1.11.0
