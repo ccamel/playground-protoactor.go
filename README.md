@@ -55,7 +55,7 @@ Event Sourcing involves integrating its principles into the actor system, treati
 
 In this context, events are generated from the command, representing the effect of the command. These events are then persisted. After successful persistence, they are used to change the actor’s state. The aggregate, therefore, manages the state of a domain identifier, responds to commands, and generates events. These events are sent to the actor who issued the command, and the state's persistence is achieved by consuming the Event Stream of the aggregate for the specified identifier.
 
-``` mermaid
+```mermaid
 flowchart LR
     O(["actor X"])
     A(["init/usr/book_lend"])
@@ -104,3 +104,31 @@ Snapshots are stored as records in the persistence store. A record maintains the
 - `timestamp`: is the timestamp when this snapshot was generated.
 - `metadata`: contains additional, possibly optional, information about the snapshot, such as source or context.
 - `payload`: holds the actual data of the snapshot in a protobuf serialized form.
+
+## Getting Started
+
+### Prerequisites
+
+- **Go**: Latest version of [Go](https://golang.org/dl/)
+- **Make**: Latest version of [Make](https://www.gnu.org/software/make/)
+- **Docker**: Latest version of [Docker](https://www.docker.com/get-started)
+
+### Build
+
+Build the project:
+
+```bash
+make build
+```
+
+Run tests:
+
+```bash
+make test
+```
+
+For all available commands:
+
+```bash
+make help
+```
