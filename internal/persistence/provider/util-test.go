@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	. "github.com/smartystreets/goconvey/convey" //nolint:revive,stylecheck
+	. "github.com/smartystreets/goconvey/convey" //nolint:revive,staticcheck
 
 	providerv1 "github.com/ccamel/playground-protoactor.go/internal/persistence/provider/v1"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence/registry"

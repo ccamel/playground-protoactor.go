@@ -94,7 +94,7 @@ func (s *Store) GetEvents(actorName string, eventIndexStart int, eventIndexEnd i
 		c := actorBucket.Cursor()
 
 		for k, v := c.Seek(util.Itob(uint64(eventIndexStart))); k != nil &&
-			(!(bytes.Compare(k, util.Itob(uint64(eventIndexEnd))) <= 0) || (eventIndexEnd == 0)); k, v = c.Next() {
+			((bytes.Compare(k, util.Itob(uint64(eventIndexEnd))) > 0) || (eventIndexEnd == 0)); k, v = c.Next() {
 			buf := s.eventsBucket(tx).Get(v)
 
 			var record persistencev1.EventRecord
