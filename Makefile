@@ -25,10 +25,10 @@ BINARY_AMD64  = $(BINARY_NAME).amd64
 # Directories
 TOOLS_DIR = ./bin
 
-GOLANGCI_LINT_BIN = $(TOOLS_DIR)/$(GOLANGCI_LINT_VERSION)/golangci-lint
-GOTHANKS_BIN      = $(TOOLS_DIR)/$(GOTHANKS_VERSION)/gothanks
-GOFUMPT_BIN       = $(TOOLS_DIR)/$(GOFUMPT_VERSION)/gofumpt
-PROTOC_GEN_GO_BIN = $(TOOLS_DIR)/$(PROTOC_GEN_GO_VERSION)/protoc-gen-go
+GOLANGCI_LINT_BIN = $(TOOLS_DIR)/golangci-lint/$(GOLANGCI_LINT_VERSION)/golangci-lint
+GOTHANKS_BIN      = $(TOOLS_DIR)/gothanks/$(GOTHANKS_VERSION)/gothanks
+GOFUMPT_BIN       = $(TOOLS_DIR)/gofumpt/$(GOFUMPT_VERSION)/gofumpt
+PROTOC_GEN_GO_BIN = $(TOOLS_DIR)/protoc-gen-go/$(PROTOC_GEN_GO_VERSION)/protoc-gen-go
 
 # Some colors (if supported)
 define get_color
