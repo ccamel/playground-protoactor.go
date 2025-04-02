@@ -12,7 +12,6 @@ BUF_VERSION             ?= 1.45.0
 GOLANGCI_LINT_VERSION   ?= v2.0.2
 GOFUMPT_VERSION         ?= v0.7.0
 GOTHANKS_VERSION        ?= latest
-ESC_VERSION             ?= latest
 PROTOC_GEN_GO_VERSION   ?= latest
 DOCKER_IMAGE_TAG        ?= latest
 
@@ -29,7 +28,6 @@ TOOLS_DIR = ./bin
 GOLANGCI_LINT_BIN = $(TOOLS_DIR)/$(GOLANGCI_LINT_VERSION)/golangci-lint
 GOTHANKS_BIN      = $(TOOLS_DIR)/$(GOTHANKS_VERSION)/gothanks
 GOFUMPT_BIN       = $(TOOLS_DIR)/$(GOFUMPT_VERSION)/gofumpt
-ESC_BIN           = $(TOOLS_DIR)/$(ESC_VERSION)/esc
 PROTOC_GEN_GO_BIN = $(TOOLS_DIR)/$(PROTOC_GEN_GO_VERSION)/protoc-gen-go
 
 # Some colors (if supported)
@@ -67,7 +65,7 @@ protobuf: check-deps ## Generate protobuf files
 		generate --verbose
 
 .PHONY: tools
-tools: $(GOLANGCI_LINT_BIN) $(GOTHANKS_BIN) $(ESC_BIN) $(PROTOC_GEN_GO_BIN) $(GOFUMPT_BIN) ## Install necessary development tools
+tools: $(GOLANGCI_LINT_BIN) $(GOTHANKS_BIN) $(PROTOC_GEN_GO_BIN) $(GOFUMPT_BIN) ## Install necessary development tools
 
 .PHONY: thanks
 thanks: tools ## Thanks to the contributors
@@ -158,11 +156,6 @@ $(GOTHANKS_BIN):
 	$(call echo_msg, 📦, Installing, gothanks, $(COLOR_YELLOW)$(GOTHANKS_VERSION)$(COLOR_RESET)...)
 	@mkdir -p $(dir $(GOTHANKS_BIN))
 	@GOBIN="$$(cd $(dir $(GOTHANKS_BIN)) && pwd)" go install github.com/psampaz/gothanks@$(GOTHANKS_VERSION)
-
-$(ESC_BIN):
-	$(call echo_msg, 📦, Installing, esc, $(COLOR_YELLOW)$(ESC_VERSION)$(COLOR_RESET)...)
-	@mkdir -p $(dir $(ESC_BIN))
-	@GOBIN="$$(cd $(dir $(ESC_BIN)) && pwd)" go install github.com/mjibson/esc@$(ESC_VERSION)
 
 $(PROTOC_GEN_GO_BIN):
 	$(call echo_msg, 📦, Installing, protoc, $(COLOR_YELLOW)$(PROTOC_GEN_GO_VERSION)$(COLOR_RESET)...)
