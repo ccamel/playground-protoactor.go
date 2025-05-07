@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.24.2 as builder
+FROM golang:1.24.3 as builder
 
 WORKDIR /go/src/github.com/ccamel/playground-protoactor.go
 
