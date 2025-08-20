@@ -1,4 +1,4 @@
-package util
+package log
 
 import (
 	"github.com/asynkron/protoactor-go/actor"

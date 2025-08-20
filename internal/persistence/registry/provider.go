@@ -14,7 +14,7 @@ import (
 
 	persistence2 "github.com/ccamel/playground-protoactor.go/internal/persistence"
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
-	"github.com/ccamel/playground-protoactor.go/internal/util"
+	"github.com/ccamel/playground-protoactor.go/internal/util/entropy"
 )
 
 type provider struct {
@@ -92,7 +92,7 @@ func (s *storeAdapter) PersistEvent(actorName string, eventIndex int, event prot
 		log.Error().Err(err).Msg("Failed to persist event")
 	}
 
-	id := util.MakeULID()
+	id := entropy.MakeULID()
 	entity := &persistencev1.EventRecord{
 		Id:        id.String(),
 		Type:      payload.TypeUrl,

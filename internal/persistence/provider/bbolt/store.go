@@ -12,10 +12,10 @@ import (
 	"go.uber.org/atomic"
 	"google.golang.org/protobuf/proto"
 
-	persistence "github.com/ccamel/playground-protoactor.go/internal/persistence"
+	"github.com/ccamel/playground-protoactor.go/internal/persistence"
 	"github.com/ccamel/playground-protoactor.go/internal/persistence/stream"
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
-	"github.com/ccamel/playground-protoactor.go/internal/util"
+	"github.com/ccamel/playground-protoactor.go/internal/util/conv"
 )
 
 var ErrNotFound = fmt.Errorf("not found")
@@ -93,8 +93,8 @@ func (s *Store) GetEvents(actorName string, eventIndexStart int, eventIndexEnd i
 
 		c := actorBucket.Cursor()
 
-		for k, v := c.Seek(util.Itob(uint64(eventIndexStart))); k != nil &&
-			((bytes.Compare(k, util.Itob(uint64(eventIndexEnd))) > 0) || (eventIndexEnd == 0)); k, v = c.Next() {
+		for k, v := c.Seek(conv.Itob(uint64(eventIndexStart))); k != nil &&
+			((bytes.Compare(k, conv.Itob(uint64(eventIndexEnd))) > 0) || (eventIndexEnd == 0)); k, v = c.Next() {
 			buf := s.eventsBucket(tx).Get(v)
 
 			var record persistencev1.EventRecord
@@ -133,7 +133,7 @@ func (s *Store) PersistEvent(_ string, record *persistencev1.EventRecord) {
 			return err
 		}
 
-		err = aggregateBucket.Put(util.Itob(record.Version), binID)
+		err = aggregateBucket.Put(conv.Itob(record.Version), binID)
 		if err != nil {
 			return err
 		}
