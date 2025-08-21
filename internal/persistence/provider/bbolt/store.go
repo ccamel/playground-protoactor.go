@@ -89,6 +89,9 @@ func (s *Store) GetEvents(actorName string, eventIndexStart, eventIndexEnd int, 
 	if eventIndexEnd < 0 {
 		return
 	}
+	if eventIndexEnd != 0 && eventIndexStart > eventIndexEnd {
+		return
+	}
 
 	startKey := conv.Itob(uint64(eventIndexStart))
 	endKey := conv.Itob(uint64(eventIndexEnd))
