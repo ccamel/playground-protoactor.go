@@ -88,7 +88,9 @@ func DoTest(uri string, factory registry.StoreFactory) {
 						{5, 5, []uint64{5}},
 						{10, 12, []uint64{10, 11, 12}},
 						{8, 6, nil},
-						{0, 0, []uint64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}}, // unbounded
+						{0, 0, []uint64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}},
+						{-5, 7, []uint64{0, 1, 2, 3, 4, 5, 6, 7}},
+						{3, -1, nil},
 					}
 
 					for _, tc := range cases {
