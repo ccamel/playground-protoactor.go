@@ -15,6 +15,7 @@ import (
 	persistencev1 "github.com/ccamel/playground-protoactor.go/internal/persistence/v1"
 )
 
+//nolint:funlen,gocognit
 func DoTest(uri string, factory registry.StoreFactory) {
 	Convey("Given a store", func() {
 		Convey("When creating a new store", func() {
@@ -58,25 +59,50 @@ func DoTest(uri string, factory registry.StoreFactory) {
 					p.PersistEvent(actorName, record)
 				}
 
-				for version := uint8(0); version < nbEvents; version++ {
-					Convey(fmt.Sprintf("Then all events are retrieved back from version %d", version), func() {
-						count := version
-						p.GetEvents(actorName, int(version), 0, func(record *persistencev1.EventRecord) {
-							message, err := record.Payload.UnmarshalNew()
-							So(err, ShouldBeNil)
+				Convey("Then unbounded iteration from any start version streams all remaining events", func() {
+					for start := uint8(0); start < nbEvents; start++ {
+						Convey(fmt.Sprintf("From %d to end", start), func() {
+							count := start
+							p.GetEvents(actorName, int(start), 0, func(record *persistencev1.EventRecord) {
+								message, err := record.Payload.UnmarshalNew()
+								So(err, ShouldBeNil)
 
-							if count%2 == 0 {
-								So(message, ShouldHaveSameTypeAs, &providerv1.SomethingHappened{})
-							} else {
-								So(message, ShouldHaveSameTypeAs, &providerv1.SomethingElseHappened{})
-							}
-
-							count++
+								if count%2 == 0 {
+									So(message, ShouldHaveSameTypeAs, &providerv1.SomethingHappened{})
+								} else {
+									So(message, ShouldHaveSameTypeAs, &providerv1.SomethingElseHappened{})
+								}
+								count++
+							})
+							So(count, ShouldEqual, nbEvents)
 						})
+					}
+				})
 
-						So(count, ShouldEqual, nbEvents)
-					})
-				}
+				Convey("And then bounded ranges work correctly", func() {
+					cases := []struct {
+						start, end int
+						expected   []uint64
+					}{
+						{3, 7, []uint64{3, 4, 5, 6, 7}},
+						{5, 5, []uint64{5}},
+						{10, 12, []uint64{10, 11, 12}},
+						{8, 6, nil},
+						{0, 0, []uint64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}},
+						{-5, 7, []uint64{0, 1, 2, 3, 4, 5, 6, 7}},
+						{3, -1, nil},
+					}
+
+					for _, tc := range cases {
+						Convey(fmt.Sprintf("Range [%d,%d] yields %v", tc.start, tc.end, tc.expected), func() {
+							var got []uint64
+							p.GetEvents(actorName, tc.start, tc.end, func(record *persistencev1.EventRecord) {
+								got = append(got, record.Version)
+							})
+							So(got, ShouldResemble, tc.expected)
+						})
+					}
+				})
 			})
 		})
 	})

@@ -82,32 +82,42 @@ func (s *Store) PersistSnapshot(actorName string, record *persistencev1.Snapshot
 }
 
 //nolint:gosec // we need to make some dirt conversions to adapt to the interfaces
-func (s *Store) GetEvents(actorName string, eventIndexStart int, eventIndexEnd int, callback func(e *persistencev1.EventRecord)) {
-	err := s.db.View(func(tx *bolt.Tx) error {
-		actorBucket := s.
-			eventsBucket(tx).
-			Bucket([]byte(actorName))
+func (s *Store) GetEvents(actorName string, eventIndexStart, eventIndexEnd int, callback func(e *persistencev1.EventRecord)) {
+	if eventIndexStart < 0 {
+		eventIndexStart = 0
+	}
+	if eventIndexEnd < 0 {
+		return
+	}
+
+	startKey := conv.Itob(uint64(eventIndexStart))
+	endKey := conv.Itob(uint64(eventIndexEnd))
+	unbounded := eventIndexEnd == 0
+
+	if err := s.db.View(func(tx *bolt.Tx) error {
+		eventsBucket := s.eventsBucket(tx)
+
+		actorBucket := eventsBucket.Bucket([]byte(actorName))
 		if actorBucket == nil {
-			return nil
+			return nil // nothing for this actor
 		}
 
 		c := actorBucket.Cursor()
-
-		for k, v := c.Seek(conv.Itob(uint64(eventIndexStart))); k != nil &&
-			((bytes.Compare(k, conv.Itob(uint64(eventIndexEnd))) > 0) || (eventIndexEnd == 0)); k, v = c.Next() {
-			buf := s.eventsBucket(tx).Get(v)
+		for k, v := c.Seek(startKey); k != nil && (unbounded || bytes.Compare(k, endKey) <= 0); k, v = c.Next() {
+			buf := eventsBucket.Get(v)
+			if buf == nil {
+				return fmt.Errorf("missing event blob for key %x", v)
+			}
 
 			var record persistencev1.EventRecord
 			if err := proto.Unmarshal(buf, &record); err != nil {
 				return err
 			}
-
 			callback(&record)
 		}
-
 		return nil
-	})
-	if err != nil { // TODO: use panic instead
+	}); err != nil {
+		// TODO: decide policy (propagate vs. panic). Logging is fine for now.
 		log.Error().Err(err).Msg("Failed to retrieve events")
 	}
 }
