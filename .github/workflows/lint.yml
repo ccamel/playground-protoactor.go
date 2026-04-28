@@ -68,7 +68,7 @@ jobs:
         uses: actions/setup-go@v6.1.0
         if: steps.changed-go-files.outputs.any_changed == 'true'
         with:
-          go-version: "1.23"
+          go-version: "1.26"
           cache: false
 
       - name: Lint go code (golangci-lint)
