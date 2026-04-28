@@ -81,7 +81,6 @@ func (s *Store) PersistSnapshot(actorName string, record *persistencev1.Snapshot
 	}
 }
 
-//nolint:gosec // we need to make some dirt conversions to adapt to the interfaces
 func (s *Store) GetEvents(actorName string, eventIndexStart, eventIndexEnd int, callback func(e *persistencev1.EventRecord)) {
 	if eventIndexStart < 0 {
 		eventIndexStart = 0
