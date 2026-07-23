@@ -6,7 +6,7 @@ require (
 	github.com/asynkron/protoactor-go v0.0.0-20260103223308-1d6aa320fbac
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/oklog/ulid/v2 v2.1.1
+	github.com/oklog/ulid/v2 v2.1.2
 	github.com/rs/zerolog v1.35.1
 	github.com/smartystreets/goconvey v1.8.1
 	github.com/spf13/cobra v1.10.2
