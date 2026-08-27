@@ -2,7 +2,9 @@ package registry
 
 import (
 	"fmt"
+	"maps"
 	"net/url"
+	"slices"
 	"strings"
 
 	"github.com/asynkron/protoactor-go/actor"
@@ -21,7 +23,8 @@ func (f StoreRegistry) Get(name string) (StoreFactory, error) {
 		return nil, fmt.Errorf(
 			"unsupported persistence scheme: %s. Supported schemes: %s",
 			name,
-			strings.Join(SupportedSchemes(), ", "))
+			strings.Join(SupportedSchemes(), ", "),
+		)
 	}
 	return factory, nil
 }
@@ -35,11 +38,7 @@ func (f StoreRegistry) GetFromURI(uri *url.URL) (StoreFactory, error) {
 }
 
 func SupportedSchemes() []string {
-	schemes := make([]string, 0, len(factories))
-	for scheme := range factories {
-		schemes = append(schemes, scheme)
-	}
-	return schemes
+	return slices.Collect(maps.Keys(factories))
 }
 
 // factories is the list of registered stores.

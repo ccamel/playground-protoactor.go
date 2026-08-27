@@ -24,7 +24,11 @@ func LifecycleLogger() actor.ReceiverMiddleware {
 
 			if accepted {
 				t := strings.TrimLeft(fmt.Sprintf("%T", env.Message), "*")
-				s := strings.ToLower(t[strings.LastIndex(t, ".")+1:])
+				_, s, found := strings.CutLast(t, ".")
+				if !found {
+					s = t
+				}
+				s = strings.ToLower(s)
 
 				logger := log.Info()
 				if a, ok := context.Actor().(LogAware); ok {

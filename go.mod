@@ -4,7 +4,6 @@ go 1.27
 
 require (
 	github.com/asynkron/protoactor-go v0.0.0-20260103223308-1d6aa320fbac
-	github.com/google/uuid v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/oklog/ulid/v2 v2.1.2
 	github.com/rs/zerolog v1.35.1
@@ -13,7 +12,6 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/vrecan/death v3.0.1+incompatible
 	go.etcd.io/bbolt v1.5.0
-	go.uber.org/atomic v1.11.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251007200510-49b9836ed3ff
 	google.golang.org/protobuf v1.36.12
 )
@@ -28,6 +26,7 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/grafana/regexp v0.0.0-20250905093917-f7b3be9d1853 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

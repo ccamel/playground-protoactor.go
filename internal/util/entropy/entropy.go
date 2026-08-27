@@ -8,22 +8,13 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-var (
-	entropy     io.Reader
-	entropyOnce sync.Once
-)
+var defaultEntropy = sync.OnceValue(func() io.Reader {
+	rng := ulid.Monotonic(rand.Reader, 0)
 
-// defaultEntropy returns a thread-safe per process monotonically increasing
-// entropy source.
-func defaultEntropy() io.Reader {
-	entropyOnce.Do(func() {
-		rng := ulid.Monotonic(rand.Reader, 0)
-		entropy = &ulid.LockedMonotonicReader{
-			MonotonicReader: ulid.Monotonic(rng, 0),
-		}
-	})
-	return entropy
-}
+	return &ulid.LockedMonotonicReader{
+		MonotonicReader: ulid.Monotonic(rng, 0),
+	}
+})
 
 // MakeULID returns an ULID with the current time in Unix milliseconds and
 // monotonically increasing entropy for the same millisecond.

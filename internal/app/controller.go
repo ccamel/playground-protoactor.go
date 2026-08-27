@@ -24,7 +24,7 @@ func (state *Controller) Receive(context actor.Context) {
 }
 
 func Props() *actor.Props {
-	supervisor := actor.NewOneForOneStrategy(5, 1000, func(_ interface{}) actor.Directive {
+	supervisor := actor.NewOneForOneStrategy(5, 1000, func(_ any) actor.Directive {
 		return actor.RestartDirective
 	})
 
@@ -33,5 +33,6 @@ func Props() *actor.Props {
 			func() actor.Actor {
 				return &Controller{}
 			},
-			actor.WithSupervisor(supervisor))
+			actor.WithSupervisor(supervisor),
+		)
 }
