@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Setup Go environment
         uses: actions/setup-go@v7.0.0

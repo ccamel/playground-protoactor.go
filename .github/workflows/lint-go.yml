@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Find changed go files
         id: changed-go-files
