@@ -26,6 +26,7 @@
           default = pkgs.mkShell {
             packages = [
               pkgs.bash-language-server
+              pkgs.deadnix
               pkgs.git
               pkgs.go_1_27
               pkgs.gofumpt
@@ -33,7 +34,9 @@
               pkgs.gopls
               pkgs.nodejs
               pkgs.markdownlint-cli2
+              pkgs.nixfmt
               pkgs.yaml-language-server
+              pkgs.statix
             ];
 
             shellHook = ''
