@@ -71,7 +71,7 @@ func (a *Manager) getOrSpawn(context actor.Context, name string) (*actor.PID, er
 // ManagerProps returns the properties to spawn a new Aggregate Manager actor.
 // The given entityProps is the properties to spawn a new Aggregate actor.
 func ManagerProps(entityProps *actor.Props) *actor.Props {
-	supervisor := actor.NewOneForOneStrategy(10, 1000, func(_ interface{}) actor.Directive {
+	supervisor := actor.NewOneForOneStrategy(10, 1000, func(_ any) actor.Directive {
 		return actor.RestartDirective
 	})
 
@@ -83,5 +83,6 @@ func ManagerProps(entityProps *actor.Props) *actor.Props {
 					aggregates:  make(map[string]*actor.PID),
 				}
 			},
-			actor.WithSupervisor(supervisor))
+			actor.WithSupervisor(supervisor),
+		)
 }

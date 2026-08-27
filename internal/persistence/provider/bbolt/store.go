@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"sync"
+	"sync/atomic"
+	"uuid"
 
 	"github.com/asynkron/protoactor-go/actor"
-	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	bolt "go.etcd.io/bbolt"
-	"go.uber.org/atomic"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/ccamel/playground-protoactor.go/internal/persistence"
@@ -167,7 +167,7 @@ func (s *Store) publish(event *persistencev1.EventRecord) {
 	s.muPublish.Lock()
 	defer s.muPublish.Unlock()
 
-	s.subscribers.Range(func(_, value interface{}) bool {
+	s.subscribers.Range(func(_, value any) bool {
 		sub := value.(subscription)
 		if sub.predicate(event) {
 			sub.handler(event)
@@ -178,10 +178,10 @@ func (s *Store) publish(event *persistencev1.EventRecord) {
 }
 
 func (s *Store) Subscribe(pid *actor.PID, last *string, predicate stream.EventPredicate) stream.SubscriptionID {
-	flag := atomic.NewBool(false)
-	buffer := make([]interface{}, 0, 64)
+	var flag atomic.Bool
+	buffer := make([]any, 0, 64)
 
-	subscriptionID := uuid.NewString()
+	subscriptionID := uuid.New().String()
 	s.subscribers.Store(
 		subscriptionID,
 		subscription{
@@ -206,9 +206,7 @@ func (s *Store) Subscribe(pid *actor.PID, last *string, predicate stream.EventPr
 	)
 
 	go func() {
-		defer func() {
-			flag.Toggle()
-		}()
+		defer flag.Store(true)
 
 		err := s.db.View(func(tx *bolt.Tx) error {
 			c := s.eventsBucket(tx).Cursor()
@@ -265,7 +263,7 @@ func (s *Store) snapshotsBucket(tx *bolt.Tx) *bolt.Bucket {
 	return tx.Bucket([]byte("snapshots"))
 }
 
-func unmarshallPayload(buf []byte) (interface{}, error) {
+func unmarshallPayload(buf []byte) (any, error) {
 	var entity persistencev1.EventRecord
 	if err := proto.Unmarshal(buf, &entity); err != nil {
 		return nil, err

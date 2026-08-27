@@ -33,7 +33,7 @@ func DoTest(uri string, factory registry.StoreFactory) {
 			Convey(fmt.Sprintf("And when inserting a %d events", nbEvents), func() {
 				records := make([]*persistencev1.EventRecord, nbEvents)
 
-				for i := uint8(0); i < nbEvents; i++ {
+				for i := range nbEvents {
 					var event proto.Message
 					if i%2 == 0 {
 						event = &providerv1.SomethingHappened{Message: fmt.Sprintf("This is message %d", i)}
@@ -60,7 +60,7 @@ func DoTest(uri string, factory registry.StoreFactory) {
 				}
 
 				Convey("Then unbounded iteration from any start version streams all remaining events", func() {
-					for start := uint8(0); start < nbEvents; start++ {
+					for start := range nbEvents {
 						Convey(fmt.Sprintf("From %d to end", start), func() {
 							count := start
 							p.GetEvents(actorName, int(start), 0, func(record *persistencev1.EventRecord) {

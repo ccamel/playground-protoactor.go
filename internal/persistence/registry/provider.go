@@ -33,7 +33,7 @@ func (s *storeAdapter) GetSnapshotInterval() int {
 	return s.store.GetSnapshotInterval()
 }
 
-func (s *storeAdapter) GetSnapshot(actorName string) (snapshot interface{}, eventIndex int, ok bool) {
+func (s *storeAdapter) GetSnapshot(actorName string) (snapshot any, eventIndex int, ok bool) {
 	record, err := s.store.GetSnapshot(actorName)
 	if err != nil {
 		return nil, 0, false
@@ -71,7 +71,7 @@ func (s *storeAdapter) DeleteSnapshots(actorName string, inclusiveToIndex int) {
 	s.store.DeleteSnapshots(actorName, inclusiveToIndex)
 }
 
-func (s *storeAdapter) GetEvents(actorName string, eventIndexStart int, eventIndexEnd int, callback func(e interface{})) {
+func (s *storeAdapter) GetEvents(actorName string, eventIndexStart int, eventIndexEnd int, callback func(e any)) {
 	callbackAdapter := func(record *persistencev1.EventRecord) {
 		message, err := record.Payload.UnmarshalNew()
 		if err != nil {

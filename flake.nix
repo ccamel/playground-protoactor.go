@@ -31,6 +31,7 @@
               pkgs.gofumpt
               pkgs.golangci-lint
               pkgs.gopls
+              pkgs.nodejs
               pkgs.markdownlint-cli2
               pkgs.yaml-language-server
             ];
