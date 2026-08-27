@@ -27,7 +27,7 @@
             packages = [
               pkgs.bash-language-server
               pkgs.git
-              pkgs.go_1_26
+              pkgs.go_1_27
               pkgs.gofumpt
               pkgs.golangci-lint
               pkgs.gopls

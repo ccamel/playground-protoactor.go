@@ -6,7 +6,7 @@ GOPATH ?= $(shell go env GOPATH)
 CURDIR := $(shell pwd)
 
 # Versions
-GOLANG_VERSION          ?= 1.26
+GOLANG_VERSION          ?= 1.27
 ALPINE_VERSION          ?= 3.20
 BUF_VERSION             ?= 1.45.0
 GOLANGCI_LINT_VERSION   ?= v2.11.4
