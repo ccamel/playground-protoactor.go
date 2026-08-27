@@ -34,3 +34,6 @@ playground-protoactor.amd64
 build/
 dist/
 bin/
+
+# direnv generated state
+.direnv/

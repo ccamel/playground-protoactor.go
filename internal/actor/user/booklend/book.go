@@ -64,14 +64,14 @@ func (a *Book) handleCommand(cmd eventsourcingv1.Command) (*eventsourcingv1.Comm
 		}
 
 		return &eventsourcingv1.CommandStatus{
-				Code:    code.Code_OK,
-				Message: fmt.Sprintf("book registered with id %s", cmd.Base.AggregateId),
-			}, &booklendv1.BookRegistered{
-				Base:      &eventsourcingv1.EventBase{Id: cmd.Base.AggregateId},
-				Timestamp: timestamppb.Now(),
-				Title:     cmd.Title,
-				Isbn:      cmd.Isbn,
-			}
+			Code:    code.Code_OK,
+			Message: fmt.Sprintf("book registered with id %s", cmd.Base.AggregateId),
+		}, &booklendv1.BookRegistered{
+			Base:      &eventsourcingv1.EventBase{Id: cmd.Base.AggregateId},
+			Timestamp: timestamppb.Now(),
+			Title:     cmd.Title,
+			Isbn:      cmd.Isbn,
+		}
 	case *booklendv1.LendBook:
 		if cmd.Borrower == "" {
 			return &eventsourcingv1.CommandStatus{
@@ -88,15 +88,15 @@ func (a *Book) handleCommand(cmd eventsourcingv1.Command) (*eventsourcingv1.Comm
 		}
 
 		return &eventsourcingv1.CommandStatus{
-				Code:    code.Code_OK,
-				Message: fmt.Sprintf("book lent with id %s", cmd.Base.AggregateId),
-			}, &booklendv1.BookLent{
-				Base:             &eventsourcingv1.EventBase{Id: cmd.Base.AggregateId},
-				Timestamp:        timestamppb.Now(),
-				Borrower:         cmd.Borrower,
-				Date:             cmd.Date,
-				ExpectedDuration: cmd.ExpectedDuration,
-			}
+			Code:    code.Code_OK,
+			Message: fmt.Sprintf("book lent with id %s", cmd.Base.AggregateId),
+		}, &booklendv1.BookLent{
+			Base:             &eventsourcingv1.EventBase{Id: cmd.Base.AggregateId},
+			Timestamp:        timestamppb.Now(),
+			Borrower:         cmd.Borrower,
+			Date:             cmd.Date,
+			ExpectedDuration: cmd.ExpectedDuration,
+		}
 	case *booklendv1.ReturnBook:
 		if a.state.Borrower == "" {
 			return &eventsourcingv1.CommandStatus{
@@ -129,15 +129,15 @@ func (a *Book) handleCommand(cmd eventsourcingv1.Command) (*eventsourcingv1.Comm
 		}
 
 		return &eventsourcingv1.CommandStatus{
-				Code:    code.Code_OK,
-				Message: fmt.Sprintf("book returned with id %s", cmd.Base.AggregateId),
-			}, &booklendv1.BookReturned{
-				Base:         &eventsourcingv1.EventBase{Id: cmd.Base.AggregateId},
-				Timestamp:    timestamppb.Now(),
-				By:           a.state.Borrower,
-				Date:         cmd.Date,
-				LentDuration: durationpb.New(t2.Sub(t1)),
-			}
+			Code:    code.Code_OK,
+			Message: fmt.Sprintf("book returned with id %s", cmd.Base.AggregateId),
+		}, &booklendv1.BookReturned{
+			Base:         &eventsourcingv1.EventBase{Id: cmd.Base.AggregateId},
+			Timestamp:    timestamppb.Now(),
+			By:           a.state.Borrower,
+			Date:         cmd.Date,
+			LentDuration: durationpb.New(t2.Sub(t1)),
+		}
 	}
 
 	return &eventsourcingv1.CommandStatus{
