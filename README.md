@@ -110,9 +110,25 @@ Snapshots are stored as records in the persistence store. A record maintains the
 
 ### Prerequisites
 
-- **Go**: Latest version of [Go](https://golang.org/dl/)
+- **Nix**: [Install Nix](https://nixos.org/download/)
 - **Make**: Latest version of [Make](https://www.gnu.org/software/make/)
 - **Docker**: Latest version of [Docker](https://www.docker.com/get-started)
+
+### Development environment
+
+Enter the Nix development shell for Go and project tooling:
+
+```bash
+nix develop
+```
+
+With [direnv](https://direnv.net/) installed, enable automatic shell activation:
+
+```bash
+direnv allow
+```
+
+Make and Docker remain prerequisites; the development shell does not provide them.
 
 ### Build
 
