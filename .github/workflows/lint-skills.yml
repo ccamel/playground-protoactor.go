@@ -51,4 +51,7 @@ jobs:
           done
 
       - name: Validate skills with skill-check
-        run: npx skill-check@1.2.0 check --allow-installs .agents/skills
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          npx skill-check@1.2.0 check --security-scan-runner uvx .agents/skills
