@@ -22,8 +22,8 @@ func GetSnapshotInterval(parsedURI *url.URL) (snapshotInterval int, err error) {
 // GetDBName returns the database name from the given URI.
 // Example: "db:bbolt:./my-db?snapshotInterval=3" returns "bbolt".
 func GetDBName(parsedURI *url.URL) (string, error) {
-	db, _, _ := strings.Cut(parsedURI.Opaque, ":")
-	if db == "" {
+	db, _, found := strings.Cut(parsedURI.Opaque, ":")
+	if !found || db == "" {
 		return "", fmt.Errorf("no database name found in URI: %s", parsedURI)
 	}
 
