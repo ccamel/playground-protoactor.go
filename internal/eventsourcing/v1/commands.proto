@@ -3,6 +3,7 @@ syntax = "proto3";
 package eventsourcing.v1;
 
 import "google/rpc/code.proto";
+import "google/protobuf/timestamp.proto";
 
 message CommandBase {
   string aggregate_id = 1;
@@ -12,4 +13,8 @@ message CommandStatus {
   google.rpc.Code code = 1;
 
   string message = 2;
+  // Timestamp when the command was processed.
+  google.protobuf.Timestamp processed_at = 3;
+  // Unique identifier for the command execution.
+  string command_id = 4;
 }
